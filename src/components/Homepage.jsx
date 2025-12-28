@@ -1,46 +1,73 @@
-import React, { useState, useRef } from 'react';
-import { ArrowRight, ChevronRight, ChevronLeft } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ArrowRight, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+const CATEGORIES_API_URL = 'https://solidoro-backend-production.up.railway.app/api/building-material-categories';
+const PRODUCTS_API_URL = 'https://solidoro-backend-production.up.railway.app/api/building-materials';
 
 const Homepage = () => {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [slides, setSlides] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const sliderRef = useRef(null);
 
-  const slides = [
-    {
-      id: 1,
-      title: "Aluminium Batten System",
-      description: "Aluminium Batten is a sleek, durable cladding system for any building. With hundreds of customizable designs available—from standard profiles to bespoke configurations—our batten systems offer limitless creative possibilities.",
-      bgImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop",
-      products: [
-        { name: "Aluminium Batten", category: "Interior & Exterior", image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053&auto=format&fit=crop" },
-        { name: "Aluminum Ceiling", category: "Interior Decoration", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1740&auto=format&fit=crop" },
-        { name: "Decorative Wall Panel", category: "Interior Decoration", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2000&auto=format&fit=crop" },
-        { name: "Acoustic Panel", category: "Sound Proofing", image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1740&auto=format&fit=crop" },
-      ]
-    },
-    {
-      id: 2,
-      title: "Metal Facades",
-      description: "Transform building exteriors with our premium metal facade solutions. Engineered for durability and aesthetic impact.",
-      bgImage: "https://images.unsplash.com/photo-1486718448742-163732cd1544?q=80&w=1740&auto=format&fit=crop",
-      products: [
-        { name: "Perforated Panel", category: "Facades", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop" },
-        { name: "Expanded Mesh", category: "Facades", image: "https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=2000&auto=format&fit=crop" },
-        { name: "Solid Sheet", category: "Cladding", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1740&auto=format&fit=crop" },
-      ]
-    },
-    {
-      id: 3,
-      title: "Custom Fabrication",
-      description: "Bespoke architectural solutions tailored to your vision. From concept to installation, we bring complex designs to life.",
-      bgImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop",
-      products: [
-        { name: "Custom Screens", category: "Bespoke", image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1674&auto=format&fit=crop" },
-        { name: "Feature Walls", category: "Interior", image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053&auto=format&fit=crop" },
-      ]
-    }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [categoriesRes, productsRes] = await Promise.all([
+          fetch(CATEGORIES_API_URL),
+          fetch(PRODUCTS_API_URL)
+        ]);
+
+        if (!categoriesRes.ok || !productsRes.ok) {
+          throw new Error('Failed to fetch data');
+        }
+
+        const categoriesData = await categoriesRes.json();
+        const productsData = await productsRes.json();
+
+        const categories = categoriesData.status === 'success' ? categoriesData.data : (Array.isArray(categoriesData) ? categoriesData : []);
+        const products = productsData.status === 'success' ? productsData.data : (Array.isArray(productsData) ? productsData : []);
+
+        // Map categories to slides format and attach relevant products
+        const mappedSlides = categories.map(cat => {
+          // Filter products that belong to this category
+          // Note: Matching logic depends on exact string match between cat.category and product.category
+          const categoryProducts = products.filter(p => p.category === cat.category);
+          
+          return {
+            id: cat.id,
+            title: cat.category,
+            description: cat.description,
+            bgImage: cat.image,
+            products: categoryProducts.slice(0, 5).map(p => ({
+              name: p.name || p.series, // Fallback to series if name is missing
+              category: p.category,
+              image: p.image || (p.images && p.images[0]) || cat.image // Fallback image
+            }))
+          };
+        });
+
+        setSlides(mappedSlides);
+      } catch (error) {
+        console.error("Error fetching homepage data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-black text-white">
+        <Loader2 className="animate-spin" size={48} />
+      </div>
+    );
+  }
+
+  if (slides.length === 0) return null;
 
   const currentSlideData = slides[activeSlide];
 
@@ -100,9 +127,6 @@ const Homepage = () => {
         <div className="hero-text-content animate-slide-up" key={`text-${currentSlideData.id}`}>
           <h1 className="hero-title">{currentSlideData.title}</h1>
           <p className="hero-description">{currentSlideData.description}</p>
-          <Link to="/contact" className="hero-cta-btn">
-            Quick Quote
-          </Link>
         </div>
 
         {/* Right Side: Product Slider */}

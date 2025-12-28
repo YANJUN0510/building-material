@@ -1,46 +1,38 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+
+const CATEGORIES_API_URL = 'https://solidoro-backend-production.up.railway.app/api/building-material-categories';
 
 const IntroSlider = () => {
   const scrollRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
-
-  const categories = [
-    {
-      id: 1,
-      title: "Mesh",
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop",
-      link: "/collections"
-    },
-    {
-      id: 2,
-      title: "Metal Facades",
-      image: "https://images.unsplash.com/photo-1486718448742-163732cd1544?q=80&w=1740&auto=format&fit=crop",
-      link: "/collections"
-    },
-    {
-      id: 3,
-      title: "Cladding Systems",
-      image: "https://plus.unsplash.com/premium_photo-1673602573826-222167644988?q=80&w=2070&auto=format&fit=crop",
-      link: "/collections"
-    },
-    {
-      id: 4,
-      title: "Interior Finishes",
-      image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000&auto=format&fit=crop",
-      link: "/collections"
-    },
-    {
-      id: 5,
-      title: "Custom Fabrication",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop",
-      link: "/collections"
-    }
-  ];
-
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const animationRef = useRef(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch(CATEGORIES_API_URL);
+        if (!res.ok) throw new Error('Failed to fetch categories');
+        const data = await res.json();
+        const cats = data.status === 'success' ? data.data : (Array.isArray(data) ? data : []);
+        setCategories(cats.map(cat => ({
+          id: cat.id,
+          title: cat.category,
+          image: cat.image,
+          link: '/collections',
+        })));
+      } catch (e) {
+        setCategories([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const smoothScroll = (element, target, duration) => {
     if (animationRef.current) cancelAnimationFrame(animationRef.current);
@@ -71,7 +63,7 @@ const IntroSlider = () => {
   };
 
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || categories.length === 0) return;
 
     const scrollContainer = scrollRef.current;
     if (!scrollContainer) return;
@@ -93,7 +85,7 @@ const IntroSlider = () => {
         clearInterval(interval);
         if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [isPaused]);
+  }, [isPaused, categories]);
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -106,6 +98,16 @@ const IntroSlider = () => {
       smoothScroll(current, target, 800); // Slightly faster for user interaction
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="h-96 w-full flex items-center justify-center bg-white text-black">
+        <Loader2 className="animate-spin" size={48} />
+      </div>
+    );
+  }
+
+  if (categories.length === 0) return null;
 
   return (
     <section className="intro-slider-section" id="intro">
