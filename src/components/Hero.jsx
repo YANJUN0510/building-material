@@ -3,6 +3,20 @@ import React from 'react';
 const Hero = () => {
   return (
     <section id="hero" className="hero">
+      {/* 背景视频 */}
+      <video 
+        className="hero-video" 
+        autoPlay 
+        loop 
+        muted 
+        playsInline
+      >
+        <source src="/video/homepage-video.mp4" type="video/mp4" />
+      </video>
+      
+      {/* 视频遮罩层 */}
+      <div className="hero-overlay"></div>
+      
       <div className="hero-content">
         <p className="hero-subtitle animate-fade-up" style={{animationDelay: '0.2s', opacity: 0}}>Architectural Metal Systems</p>
         <h1 className="hero-title">

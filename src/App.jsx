@@ -1,26 +1,25 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import Philosophy from './components/Philosophy';
-import Sourcing from './components/Sourcing';
-import Products from './components/Products';
-import Showcase from './components/Showcase';
-import Contact from './components/Contact';
 import Footer from './components/Footer';
+import Home from './pages/Home';
+import PhilosophyPage from './pages/Philosophy';
+import Collections from './pages/Collections';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
-    <>
+    <Router>
+      <ScrollToTop />
       <div className="dynamic-bg"></div>
       <Navbar />
-      <Hero />
-      <Philosophy />
-      <Sourcing />
-      <Products />
-      <Showcase />
-      <Contact />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/philosophy" element={<PhilosophyPage />} />
+        <Route path="/collections" element={<Collections />} />
+      </Routes>
       <Footer />
-    </>
+    </Router>
   )
 }
 
