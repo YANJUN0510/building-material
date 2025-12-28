@@ -21,7 +21,7 @@ const Hero = () => {
         <p className="hero-subtitle animate-fade-up" style={{animationDelay: '0.2s', opacity: 0}}>Wholesale Building Materials · Direct Project Supply · One-Stop Procurement</p>
         <h1 className="hero-title">
           <span className="metallic-text animate-fade-up" style={{animationDelay: '0.4s', opacity: 0}}>Building Material Warehouse</span>
-          <div className="animate-fade-up" style={{animationDelay: '0.6s', opacity: 0}}>Professional Building Materials Wholesaler</div>
+          <div className="animate-fade-up" style={{animationDelay: '0.6s', opacity: 0}}>Building Materials</div>
           <span className="animate-fade-up" style={{animationDelay: '0.8s', opacity: 0}}>Reliable Supply for Projects of Any Scale</span>
         </h1>
       </div>

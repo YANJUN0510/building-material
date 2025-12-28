@@ -75,7 +75,9 @@ const Navbar = () => {
   return (
     <>
       <nav className={`navbar ${isFixed ? 'fixed' : 'absolute'} ${isHidden ? 'hidden' : ''}`}>
-        <Link to="/" className="logo">Building Material Warehouse</Link>
+        <Link to="/" className="logo">
+          <img src="/logo.png" alt="Logo" className="nav-logo-img" />
+        </Link>
         <div className="nav-links">
           <Link to="/">Home</Link>
           <Link to="/collections">Collections</Link>

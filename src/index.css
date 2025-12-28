@@ -86,6 +86,14 @@ h1, h2, h3, h4 {
   letter-spacing: 0.3em;
   color: var(--text-primary);
   text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.nav-logo-img {
+  height: 40px; /* Adjust height as needed */
+  width: auto;
+  object-fit: contain;
 }
 
 .nav-links {

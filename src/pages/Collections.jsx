@@ -330,7 +330,12 @@ const Collections = () => {
                   </div>
 
                   <div className="col-modal-actions">
-                    <button className="col-btn-black">Inquire</button>
+                    <button 
+                      className="col-btn-black"
+                      onClick={() => setIsContactOpen(true)}
+                    >
+                      Inquire
+                    </button>
                     {/* <button className="col-btn-outline" style={{ color: '#000', borderColor: '#000' }}>
                       Download Spec Sheet
                     </button> */}
