@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Mail, Phone, Instagram, Twitter } from 'lucide-react';
+import { X, Mail } from 'lucide-react';
 
 const ContactModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
@@ -22,24 +22,9 @@ const ContactModal = ({ isOpen, onClose }) => {
                 </div>
                 <div className="method-details">
                   <span className="method-label">Chat to us</span>
-                  <a href="mailto:Sales@solidoro.com.au" className="method-value">Sales@solidoro.com.au</a>
+                  <a href="mailto:sales@quantummax.ai" className="method-value">sales@quantummax.ai</a>
                 </div>
               </div>
-
-              <div className="contact-method-item">
-                <div className="method-icon">
-                  <Phone size={20} />
-                </div>
-                <div className="method-details">
-                  <span className="method-label">Call us</span>
-                  <a href="tel:0405468546" className="method-value">0405 468 546</a>
-                </div>
-              </div>
-            </div>
-
-            <div className="contact-socials">
-              <a href="#" className="social-icon"><Instagram size={24} /></a>
-              <a href="#" className="social-icon"><Twitter size={24} /></a>
             </div>
           </div>
         </div>
@@ -94,4 +79,3 @@ const ContactModal = ({ isOpen, onClose }) => {
 };
 
 export default ContactModal;
-
