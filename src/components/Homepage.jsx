@@ -79,6 +79,7 @@ const Homepage = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, [isPaused]);
 
+  
 
   return (
     <section className="homepage-collections">
