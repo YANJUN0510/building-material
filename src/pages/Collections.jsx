@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Download, X, Loader2, Search } from 'lucide-react';
+import ContactModal from '../components/ContactModal';
 import './Collections.css';
 
 const API_URL = 'https://solidoro-backend-production.up.railway.app/api/building-materials';
@@ -10,6 +11,7 @@ const Collections = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isContactOpen, setIsContactOpen] = useState(false);
 
   // Fetch data from API
   useEffect(() => {
@@ -329,9 +331,9 @@ const Collections = () => {
 
                   <div className="col-modal-actions">
                     <button className="col-btn-black">Inquire</button>
-                    <button className="col-btn-outline" style={{ color: '#000', borderColor: '#000' }}>
+                    {/* <button className="col-btn-outline" style={{ color: '#000', borderColor: '#000' }}>
                       Download Spec Sheet
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               </div>
@@ -340,36 +342,24 @@ const Collections = () => {
         )}
       </AnimatePresence>
 
-      {/* Inspiration / Featured Project Section */}
-      <section className="col-inspiration">
-        <div className="col-insp-container">
-          <div className="col-insp-image">
-             <img src="https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?q=80&w=1974&auto=format&fit=crop" alt="Featured Architecture" />
-          </div>
-          <div className="col-insp-content">
-            <span className="col-tag">Featured Application</span>
-            <h2 className="col-insp-title">The Monolith</h2>
-            <p className="col-insp-desc">
-              See how our Weathered Zinc panels were utilized to create a seamless, monolithic facade for the Modern Art Museum in Copenhagen.
-            </p>
-            <button className="col-btn-outline">
-              Explore Project <ArrowRight size={16} style={{marginLeft: '8px'}}/>
+      {/* CTA Section */}
+      <section className="col-cta">
+        <div className="col-cta-content">
+          <h2>Ready to specify?</h2>
+          <p>Consult with our material experts for your project needs.</p>
+          <div className="col-cta-buttons">
+            <button 
+              className="col-btn-white" 
+              onClick={() => setIsContactOpen(true)}
+            >
+              Contact Sales
             </button>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="col-cta">
-        <div className="col-cta-content">
-          <h2>Ready to specify?</h2>
-          <p>Request physical samples or consult with our material experts.</p>
-          <div className="col-cta-buttons">
-            <button className="col-btn-black">Request Samples</button>
-            <button className="col-btn-white">Contact Sales</button>
-          </div>
-        </div>
-      </section>
+      {/* Contact Modal */}
+      <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
     </div>
   );
 };

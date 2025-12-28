@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import ContactModal from './ContactModal';
 
 const Navbar = () => {
   // 使用 ref 来追踪状态，避免闭包陷阱，同时减少不必要的重渲染
@@ -8,6 +9,8 @@ const Navbar = () => {
     isHidden: false
   });
   
+  const [isContactOpen, setIsContactOpen] = useState(false);
+
   const lastScrollY = useRef(0);
   // 用 ref 记录上一次的渲染状态，方便逻辑判断
   const currentState = useRef({
@@ -70,16 +73,26 @@ const Navbar = () => {
   const { isFixed, isHidden } = renderState;
 
   return (
-    <nav className={`navbar ${isFixed ? 'fixed' : 'absolute'} ${isHidden ? 'hidden' : ''}`}>
-      <Link to="/" className="logo">Building Material Warehouse</Link>
-      <div className="nav-links">
-        <Link to="/">Home</Link>
-        <Link to="/philosophy">Philosophy</Link>
-        <Link to="/collections">Collections</Link>
-        <Link to="/#showcase">Projects</Link>
-        <Link to="/#contact">Contact</Link>
-      </div>
-    </nav>
+    <>
+      <nav className={`navbar ${isFixed ? 'fixed' : 'absolute'} ${isHidden ? 'hidden' : ''}`}>
+        <Link to="/" className="logo">Building Material Warehouse</Link>
+        <div className="nav-links">
+          <Link to="/">Home</Link>
+          <Link to="/collections">Collections</Link>
+          <Link to="/philosophy">Philosophy</Link>
+          <Link to="/#showcase">Projects</Link>
+          <button 
+            className="nav-contact-btn" 
+            onClick={() => setIsContactOpen(true)}
+          >
+            Contact
+          </button>
+        </div>
+      </nav>
+
+      {/* Contact Modal */}
+      <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
+    </>
   );
 };
 

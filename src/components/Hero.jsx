@@ -24,7 +24,6 @@ const Hero = () => {
           <div className="animate-fade-up" style={{animationDelay: '0.6s', opacity: 0}}>Professional Building Materials Wholesaler</div>
           <span className="animate-fade-up" style={{animationDelay: '0.8s', opacity: 0}}>Reliable Supply for Projects of Any Scale</span>
         </h1>
-        <a href="#contact" className="btn animate-fade-up" style={{animationDelay: '1s', opacity: 0}}>Request a Quote</a>
       </div>
 
       {/* Scroll Down Indicator */}
