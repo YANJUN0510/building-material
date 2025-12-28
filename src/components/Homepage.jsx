@@ -1,169 +1,133 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { ArrowRight, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Homepage = () => {
-  const scrollContainerRef = useRef(null);
-  const [isPaused, setIsPaused] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const sliderRef = useRef(null);
 
-  const categories = [
+  const slides = [
     {
+      id: 1,
+      title: "Aluminium Batten System",
+      description: "Aluminium Batten is a sleek, durable cladding system for any building. With hundreds of customizable designs available—from standard profiles to bespoke configurations—our batten systems offer limitless creative possibilities.",
+      bgImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop",
+      products: [
+        { name: "Aluminium Batten", category: "Interior & Exterior", image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053&auto=format&fit=crop" },
+        { name: "Aluminum Ceiling", category: "Interior Decoration", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1740&auto=format&fit=crop" },
+        { name: "Decorative Wall Panel", category: "Interior Decoration", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2000&auto=format&fit=crop" },
+        { name: "Acoustic Panel", category: "Sound Proofing", image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1740&auto=format&fit=crop" },
+      ]
+    },
+    {
+      id: 2,
       title: "Metal Facades",
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop",
-      link: "#facades"
+      description: "Transform building exteriors with our premium metal facade solutions. Engineered for durability and aesthetic impact.",
+      bgImage: "https://images.unsplash.com/photo-1486718448742-163732cd1544?q=80&w=1740&auto=format&fit=crop",
+      products: [
+        { name: "Perforated Panel", category: "Facades", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop" },
+        { name: "Expanded Mesh", category: "Facades", image: "https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=2000&auto=format&fit=crop" },
+        { name: "Solid Sheet", category: "Cladding", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1740&auto=format&fit=crop" },
+      ]
     },
     {
-      title: "Cladding Systems",
-      image: "https://images.unsplash.com/photo-1486718448742-163732cd1544?q=80&w=1740&auto=format&fit=crop",
-      link: "#cladding"
-    },
-    {
-      title: "Interior Finishes",
-      image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053&auto=format&fit=crop",
-      link: "#interior"
-    },
-    {
+      id: 3,
       title: "Custom Fabrication",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop",
-      link: "#custom"
-    },
-    {
-      title: "Architectural Mesh",
-      image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1740&auto=format&fit=crop",
-      link: "#mesh"
+      description: "Bespoke architectural solutions tailored to your vision. From concept to installation, we bring complex designs to life.",
+      bgImage: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop",
+      products: [
+        { name: "Custom Screens", category: "Bespoke", image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1674&auto=format&fit=crop" },
+        { name: "Feature Walls", category: "Interior", image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053&auto=format&fit=crop" },
+      ]
     }
   ];
-  
-  // Double the categories to ensure smooth infinite scroll
-  const infiniteCategories = [...categories, ...categories, ...categories];
 
-  const scroll = (direction) => {
-    if (scrollContainerRef.current) {
-      const { current } = scrollContainerRef;
-      const scrollAmount = 400; // 每次滑动的距离
+  const currentSlideData = slides[activeSlide];
+
+  const scrollSlider = (direction) => {
+    if (sliderRef.current) {
+      const scrollAmount = 300;
       if (direction === 'left') {
-        current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        sliderRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
       } else {
-        current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        sliderRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
       }
     }
   };
 
-  useEffect(() => {
-    const scrollContainer = scrollContainerRef.current;
-    let animationFrameId;
-
-    // Initialize scroll position ONLY ONCE when component mounts
-    // Using a simple flag on the DOM element itself or just running it once
-    if (scrollContainer && !scrollContainer.hasInitialized) {
-        scrollContainer.scrollLeft = scrollContainer.scrollWidth / 3;
-        scrollContainer.hasInitialized = true;
-    }
-
-    const autoScroll = () => {
-      if (!isPaused && scrollContainer) {
-        // Check for loop reset
-        if (scrollContainer.scrollLeft >= (scrollContainer.scrollWidth / 3) * 2) {
-            scrollContainer.scrollLeft = scrollContainer.scrollWidth / 3;
-        } else if (scrollContainer.scrollLeft <= 0) {
-             // Handle manual scroll to extreme left
-             scrollContainer.scrollLeft = scrollContainer.scrollWidth / 3;
-        } else {
-             scrollContainer.scrollLeft += 1; 
-        }
-      }
-      animationFrameId = requestAnimationFrame(autoScroll);
-    };
-
-    animationFrameId = requestAnimationFrame(autoScroll);
-
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [isPaused]);
-
-  
-
   return (
-    <section className="homepage-collections">
-      {/* Feature Section - Moved to Top */}
-      <div className="feature-section">
-        <div className="feature-content">
-          <h2 className="feature-title">Architectural Solutions</h2>
-          <p className="feature-text">
-            Explore our comprehensive range of architectural metal systems designed to elevate modern construction. 
-            From bespoke facades to precision-engineered cladding, we deliver excellence in every detail.
-          </p>
-          <a href="#solutions" className="feature-btn">View All Solutions</a>
-        </div>
-        <div className="feature-image">
-          <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1740&auto=format&fit=crop" alt="Architectural Solutions" />
+    <section className="hero-slider-section" id="collections">
+      {/* Category Menu */}
+      <div className="category-menu-container">
+        <h2 className="menu-title">Our Collections</h2>
+        <div className="category-menu">
+          {slides.map((slide, index) => (
+            <button
+              key={slide.id}
+              className={`category-menu-item ${index === activeSlide ? 'active' : ''}`}
+              onClick={() => setActiveSlide(index)}
+            >
+              {slide.title}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Section Header for Transition */}
-      <div className="homepage-header animate-fade-up">
-        <span className="section-subtitle">Discover Our Range</span>
-        <h2 className="section-title">Product Categories</h2>
+      {/* Background Image with Overlay */}
+      <div className="hero-bg" key={currentSlideData.id}>
+        <img src={currentSlideData.bgImage} alt={currentSlideData.title} className="animate-fade-in" />
+        <div className="hero-overlay"></div>
       </div>
 
-      <div className="homepage-grid">
-        {/* Carousel Layout */}
-        <div 
-            className="carousel-container" 
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-        >
-          <button className="carousel-btn left" onClick={() => scroll('left')}>
-            <ChevronLeft size={24} />
+      {/* Vertical Navigation (Left) */}
+      <div className="vertical-nav">
+        <div className="nav-line"></div>
+        {slides.map((slide, index) => (
+          <button 
+            key={slide.id} 
+            className={`nav-dot ${index === activeSlide ? 'active' : ''}`}
+            onClick={() => setActiveSlide(index)}
+            aria-label={`Go to slide ${index + 1}`}
+          >
+            {index === activeSlide && <span className="nav-number">0{index + 1}</span>}
           </button>
-          
-          <div className="carousel-track" ref={scrollContainerRef}>
-            {infiniteCategories.map((cat, index) => (
-              <div key={index} className="carousel-item">
-                <div className="carousel-img-wrapper">
-                  <img src={cat.image} alt={cat.title} className="carousel-img" />
-                  <div className="carousel-overlay"></div>
-                </div>
-                <div className="carousel-content">
-                  <h3 className="carousel-title">{cat.title}</h3>
-                </div>
-              </div>
-            ))}
-          </div>
+        ))}
+        <div className="nav-line"></div>
+      </div>
 
-          <button className="carousel-btn right" onClick={() => scroll('right')}>
-            <ChevronRight size={24} />
-          </button>
+      <div className="hero-content-container">
+        {/* Left Side: Text Info */}
+        <div className="hero-text-content animate-slide-up" key={`text-${currentSlideData.id}`}>
+          <h1 className="hero-title">{currentSlideData.title}</h1>
+          <p className="hero-description">{currentSlideData.description}</p>
+          <Link to="/contact" className="hero-cta-btn">
+            Quick Quote
+          </Link>
         </div>
 
-        {/* Bottom Section - Full Width Banners */}
-        <div className="banner-grid">
-          <div className="banner-item">
-            <img src="https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=2000&auto=format&fit=crop" alt="Sustainable Metals" />
-            <div className="banner-content">
-              <h3>Sustainable Metals</h3>
-              <a href="#sustainable">Learn More</a>
+        {/* Right Side: Product Slider */}
+        <div className="hero-product-slider animate-slide-in-right" key={`slider-${currentSlideData.id}`}>
+            <div className="product-cards-wrapper" ref={sliderRef}>
+                {currentSlideData.products.map((product, idx) => (
+                    <Link 
+                      to="/collections" 
+                      key={idx} 
+                      className="mini-product-card animate-card-up"
+                      style={{ animationDelay: `${idx * 0.1 + 0.3}s` }}
+                    >
+                        <div className="card-img">
+                            <img src={product.image} alt={product.name} />
+                        </div>
+                        <div className="card-info">
+                            <h4>{product.name}</h4>
+                            <span>{product.category}</span>
+                        </div>
+                    </Link>
+                ))}
             </div>
-          </div>
-          <div className="banner-item">
-            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2000&auto=format&fit=crop" alt="Innovation Lab" />
-            <div className="banner-content">
-              <h3>Innovation Lab</h3>
-              <a href="#innovation">Discover</a>
-            </div>
-          </div>
-        </div>
-        
-        {/* Design Philosophy Section */}
-        <div className="design-philosophy">
-            <div className="dp-image">
-                <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1674&auto=format&fit=crop" alt="Design Philosophy" />
-            </div>
-            <div className="dp-content">
-                <h3>Elevating Design</h3>
-                <p>
-                    Work one-on-one with our professional designers to visualize a quick update or a complete remodel.
-                    We bring your vision to life with precision and artistry.
-                </p>
-                <a href="#design" className="dp-btn">Start Your Project</a>
+            <div className="slider-controls">
+                <button className="control-btn" onClick={() => scrollSlider('left')}><ChevronLeft size={20}/></button>
+                <button className="control-btn" onClick={() => scrollSlider('right')}><ChevronRight size={20}/></button>
             </div>
         </div>
       </div>

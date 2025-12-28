@@ -26,6 +26,21 @@ const Hero = () => {
         </h1>
         <a href="#contact" className="btn animate-fade-up" style={{animationDelay: '1s', opacity: 0}}>Inquire Now</a>
       </div>
+
+      {/* Scroll Down Indicator */}
+      <a href="#intro" className="scroll-down animate-bounce" onClick={(e) => {
+        e.preventDefault();
+        document.getElementById('intro')?.scrollIntoView({ behavior: 'smooth' });
+      }}>
+        <div className="mouse">
+          <div className="wheel"></div>
+        </div>
+        <div className="arrow-span">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </a>
     </section>
   );
 };
