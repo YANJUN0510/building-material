@@ -71,7 +71,7 @@ const Navbar = () => {
 
   return (
     <nav className={`navbar ${isFixed ? 'fixed' : 'absolute'} ${isHidden ? 'hidden' : ''}`}>
-      <Link to="/" className="logo">LUXE METAL</Link>
+      <Link to="/" className="logo">Building Material Warehouse</Link>
       <div className="nav-links">
         <Link to="/">Home</Link>
         <Link to="/philosophy">Philosophy</Link>
