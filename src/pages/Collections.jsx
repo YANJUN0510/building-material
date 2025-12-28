@@ -1,45 +1,124 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Download, ChevronRight } from 'lucide-react';
+import { ArrowRight, Download, X, Loader2, Search } from 'lucide-react';
 import './Collections.css';
 
-// Mock Data
-const collectionsData = {
-  "cladding": {
-    label: "Cladding Systems",
-    description: "High-performance metal facades designed for durability and aesthetic impact.",
-    items: [
-      { id: 'c1', name: "Brushed Aluminum", code: "AL-B01", img: "https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=2069&auto=format&fit=crop" },
-      { id: 'c2', name: "Weathered Zinc", code: "ZN-W02", img: "https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=2069&auto=format&fit=crop" },
-      { id: 'c3', name: "Corten Steel", code: "ST-C03", img: "https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=2069&auto=format&fit=crop" },
-      { id: 'c4', name: "Anodized Copper", code: "CU-A04", img: "https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=2069&auto=format&fit=crop" },
-      { id: 'c5', name: "Blackened Steel", code: "ST-B05", img: "https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=2069&auto=format&fit=crop" },
-      { id: 'c6', name: "Perforated Panel", code: "AL-P06", img: "https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=2069&auto=format&fit=crop" },
-    ]
-  },
-  "mesh": {
-    label: "Architectural Mesh",
-    description: "Versatile wire mesh solutions for shading, safety, and separation.",
-    items: [
-      { id: 'm1', name: "Woven Wire", code: "MS-W01", img: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1740&auto=format&fit=crop" },
-      { id: 'm2', name: "Expanded Metal", code: "MS-E02", img: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1740&auto=format&fit=crop" },
-      { id: 'm3', name: "Spiral Mesh", code: "MS-S03", img: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1740&auto=format&fit=crop" },
-      { id: 'm4', name: "Cable Mesh", code: "MS-C04", img: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=1740&auto=format&fit=crop" },
-    ]
-  },
-  "interior": {
-    label: "Interior Surfaces",
-    description: "Refined textures and finishes for interior applications.",
-    items: [
-      { id: 'i1', name: "Hammered Brass", code: "BR-H01", img: "https://images.unsplash.com/photo-1615529182904-14819c35db37?q=80&w=2080&auto=format&fit=crop" },
-      { id: 'i2', name: "Polished Chrome", code: "ST-P02", img: "https://images.unsplash.com/photo-1615529182904-14819c35db37?q=80&w=2080&auto=format&fit=crop" },
-      { id: 'i3', name: "Matte Gold", code: "AU-M03", img: "https://images.unsplash.com/photo-1615529182904-14819c35db37?q=80&w=2080&auto=format&fit=crop" },
-    ]
-  }
-};
+const API_URL = 'https://solidoro-backend-production.up.railway.app/api/building-materials';
 
 const Collections = () => {
-  const [activeCategory, setActiveCategory] = useState("cladding");
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        const result = await response.json();
+        // Assuming API returns { status: "success", data: [...] }
+        if (result.status === 'success' && Array.isArray(result.data)) {
+          setProducts(result.data);
+        } else {
+          // Fallback if structure is different (e.g. direct array)
+          setProducts(Array.isArray(result) ? result : []);
+        }
+      } catch (err) {
+        console.error("Error loading building materials:", err);
+        setError("Unable to load collections. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Extract hierarchy: Category -> Series
+  const hierarchy = useMemo(() => {
+    const map = {};
+    products.forEach(p => {
+      if (!p.category) return;
+      if (!map[p.category]) {
+        map[p.category] = new Set();
+      }
+      if (p.series) {
+        map[p.category].add(p.series);
+      }
+    });
+    // Convert Sets to Arrays and sort
+    const sortedMap = {};
+    Object.keys(map).sort().forEach(key => {
+      const seriesArray = Array.from(map[key]).sort();
+      if (seriesArray.length > 0) {
+        sortedMap[key] = seriesArray;
+      }
+    });
+    return sortedMap;
+  }, [products]);
+
+  // Default to the first series of the first category
+  const defaultSeries = useMemo(() => {
+    const categories = Object.keys(hierarchy);
+    if (categories.length === 0) return "";
+    const firstCat = categories[0];
+    return hierarchy[firstCat][0] || "";
+  }, [hierarchy]);
+
+  const [activeSeries, setActiveSeries] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  // Update activeSeries when data loads
+  useEffect(() => {
+    if (defaultSeries && !activeSeries) {
+      setActiveSeries(defaultSeries);
+    }
+  }, [defaultSeries, activeSeries]);
+
+  // Handle series selection (clears search)
+  const handleSeriesClick = (series) => {
+    setActiveSeries(series);
+    setSearchQuery(""); // Clear search when navigating
+  };
+
+  // Filter products based on search query OR active series
+  const filteredProducts = useMemo(() => {
+    // 1. If searching, filter globally
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      return products.filter(p => 
+        (p.code && p.code.toLowerCase().includes(query)) ||
+        (p.name && p.name.toLowerCase().includes(query)) ||
+        (p.description && p.description.toLowerCase().includes(query))
+      );
+    }
+    
+    // 2. Otherwise, filter by active series
+    if (!activeSeries) return [];
+    return products.filter(p => p.series === activeSeries);
+  }, [products, activeSeries, searchQuery]);
+
+  if (isLoading) {
+    return (
+      <div className="collections-page-loading">
+        <Loader2 className="animate-spin" size={48} />
+        <p>Loading Collections...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="collections-page-error">
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()} className="col-btn-black">Retry</button>
+      </div>
+    );
+  }
 
   return (
     <div className="collections-page">
@@ -60,7 +139,7 @@ const Collections = () => {
             transition={{ delay: 0.3, duration: 0.8 }}
             className="col-subtitle"
           >
-            A curated selection of premium architectural metals.
+            A curated selection of premium architectural materials.
           </motion.p>
         </div>
       </section>
@@ -69,21 +148,52 @@ const Collections = () => {
       <section className="col-core-module">
         <div className="col-layout">
           
-          {/* Left Sidebar: Categories */}
+          {/* Left Sidebar: Categories -> Series */}
           <div className="col-sidebar">
-            <h3 className="col-sidebar-title">Categories</h3>
-            <div className="col-nav">
-              {Object.entries(collectionsData).map(([key, data]) => (
-                <button 
-                  key={key}
-                  className={`col-nav-btn ${activeCategory === key ? 'active' : ''}`}
-                  onClick={() => setActiveCategory(key)}
-                >
-                  <span className="col-nav-text">{data.label}</span>
-                  {activeCategory === key && (
-                    <motion.div layoutId="activeIndicator" className="col-nav-indicator" />
-                  )}
+            
+            {/* Search Input */}
+            <div className="col-search-box">
+              <Search className="col-search-icon" size={18} />
+              <input 
+                type="text" 
+                placeholder="Search code, name..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="col-search-input"
+              />
+              {searchQuery && (
+                <button className="col-search-clear" onClick={() => setSearchQuery("")}>
+                  <X size={14} />
                 </button>
+              )}
+            </div>
+
+            <h3 className="col-sidebar-title">Collections</h3>
+            <div className="col-nav">
+              {Object.entries(hierarchy).map(([category, seriesList]) => (
+                <div key={category} className="col-nav-group">
+                  <h4 className="col-nav-category">{category}</h4>
+                  <div className="col-nav-items">
+                    {seriesList.map((series) => (
+                      <button 
+                        key={series}
+                        className={`col-nav-btn ${activeSeries === series && !searchQuery ? 'active' : ''}`}
+                        onClick={() => handleSeriesClick(series)}
+                      >
+                        <span className="col-nav-text">{series}</span>
+                        {activeSeries === series && !searchQuery && (
+                          <motion.div 
+                            layoutId={null}
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: '100%' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="col-nav-indicator" 
+                          />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
             
@@ -98,39 +208,61 @@ const Collections = () => {
           <div className="col-content">
             <AnimatePresence mode='wait'>
               <motion.div
-                key={activeCategory}
+                key={searchQuery ? 'search-results' : (activeSeries || 'empty')}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.4 }}
                 className="col-grid-container"
               >
-                <div className="col-category-header">
-                  <h2>{collectionsData[activeCategory].label}</h2>
-                  <p>{collectionsData[activeCategory].description}</p>
-                </div>
+                {searchQuery ? (
+                  <div className="col-category-header">
+                    <h2>Search Results</h2>
+                    <p>
+                      Found {filteredProducts.length} items matching "{searchQuery}"
+                    </p>
+                  </div>
+                ) : activeSeries ? (
+                  <div className="col-category-header">
+                    <h2>{activeSeries}</h2>
+                    <p>Explore our range of {activeSeries.toLowerCase()} designed for modern architecture.</p>
+                  </div>
+                ) : (
+                   <div className="col-no-selection">
+                     <p>Select a collection to view materials.</p>
+                   </div>
+                )}
 
                 <div className="col-grid">
-                  {collectionsData[activeCategory].items.map((item, index) => (
+                  {filteredProducts.map((item, index) => (
                     <motion.div 
-                      key={item.id}
+                      key={item.code}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                       className="col-item-card"
+                      onClick={() => setSelectedProduct(item)}
                     >
                       <div className="col-item-img-box">
-                        <img src={item.img} alt={item.name} />
+                        <img src={item.image} alt={item.name} />
                         <div className="col-item-overlay">
-                          <button className="col-view-btn">View Details</button>
+                          <button className="col-view-btn">View Specs</button>
                         </div>
                       </div>
                       <div className="col-item-info">
-                        <span className="col-item-code">{item.code}</span>
+                        <div className="col-item-meta">
+                          <span className="col-item-code">{item.code}</span>
+                        </div>
                         <h4 className="col-item-name">{item.name}</h4>
+                        <p className="col-item-desc-short">{item.description}</p>
                       </div>
                     </motion.div>
                   ))}
+                  {filteredProducts.length === 0 && (
+                    <div className="col-no-results">
+                      <p>No products found.</p>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -138,6 +270,75 @@ const Collections = () => {
 
         </div>
       </section>
+
+      {/* Product Details Modal */}
+      <AnimatePresence>
+        {selectedProduct && (
+          <motion.div 
+            className="col-modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedProduct(null)}
+          >
+            <motion.div 
+              className="col-modal-content"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button className="col-modal-close" onClick={() => setSelectedProduct(null)}>
+                <X size={24} />
+              </button>
+              
+              <div className="col-modal-grid">
+                <div className="col-modal-image">
+                   <img src={selectedProduct.image} alt={selectedProduct.name} />
+                </div>
+                <div className="col-modal-details">
+                  <span className="col-tag">{selectedProduct.category} / {selectedProduct.series}</span>
+                  <div className="col-modal-header-group">
+                    <h2>{selectedProduct.name}</h2>
+                    <span className="col-modal-code">{selectedProduct.code}</span>
+                  </div>
+                  
+                  <p className="col-modal-desc">{selectedProduct.description}</p>
+                  
+                  <div className="col-modal-specs">
+                    <h3>Specifications</h3>
+                    <ul>
+                      {/* Handle both object specs (from mock) and array specs (from API) */}
+                      {Array.isArray(selectedProduct.specs) ? (
+                         selectedProduct.specs.map((spec, idx) => (
+                           <li key={idx}>
+                             <span className="spec-key">{spec.label}:</span>
+                             <span className="spec-val">{spec.value}</span>
+                           </li>
+                         ))
+                      ) : (
+                        selectedProduct.specs && Object.entries(selectedProduct.specs).map(([key, value]) => (
+                          <li key={key}>
+                            <span className="spec-key">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
+                            <span className="spec-val">{value}</span>
+                          </li>
+                        ))
+                      )}
+                    </ul>
+                  </div>
+
+                  <div className="col-modal-actions">
+                    <button className="col-btn-black">Inquire</button>
+                    <button className="col-btn-outline" style={{ color: '#000', borderColor: '#000' }}>
+                      Download Spec Sheet
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Inspiration / Featured Project Section */}
       <section className="col-inspiration">
