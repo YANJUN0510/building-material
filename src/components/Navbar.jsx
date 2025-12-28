@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 import ContactModal from './ContactModal';
 
 const Navbar = () => {
@@ -10,6 +11,8 @@ const Navbar = () => {
   });
   
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   const lastScrollY = useRef(0);
   // 用 ref 记录上一次的渲染状态，方便逻辑判断
@@ -17,6 +20,11 @@ const Navbar = () => {
     isFixed: false,
     isHidden: false
   });
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -74,18 +82,31 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className={`navbar ${isFixed ? 'fixed' : 'absolute'} ${isHidden ? 'hidden' : ''}`}>
+      <nav className={`navbar ${isFixed ? 'fixed' : 'absolute'} ${isHidden ? 'hidden' : ''} ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
         <Link to="/" className="logo">
           <img src="/logo.png" alt="Logo" className="nav-logo-img" />
         </Link>
-        <div className="nav-links">
+
+        {/* Mobile Menu Toggle */}
+        <button 
+          className="mobile-menu-toggle"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle Menu"
+        >
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        <div className={`nav-links ${isMobileMenuOpen ? 'active' : ''}`}>
           <Link to="/">Home</Link>
           <Link to="/collections">Collections</Link>
           <Link to="/philosophy">Philosophy</Link>
           <Link to="/#showcase">Projects</Link>
           <button 
             className="nav-contact-btn" 
-            onClick={() => setIsContactOpen(true)}
+            onClick={() => {
+              setIsContactOpen(true);
+              setIsMobileMenuOpen(false);
+            }}
           >
             Contact
           </button>

@@ -91,7 +91,7 @@ h1, h2, h3, h4 {
 }
 
 .nav-logo-img {
-  height: 40px; /* Adjust height as needed */
+  height: 60px; /* Adjust height as needed */
   width: auto;
   object-fit: contain;
 }
@@ -141,6 +141,16 @@ h1, h2, h3, h4 {
 .nav-contact-btn:hover {
   background: #333;
   transform: translateY(-2px);
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  z-index: 1001;
 }
 
 /* Contact Modal Styles */
@@ -955,8 +965,45 @@ footer {
   .showcase-item { height: 300px; border-right: none; border-bottom: 1px solid var(--border-light); }
   .showcase-content { transform: rotate(0); }
   .philosophy { grid-template-columns: 1fr; gap: 4rem; }
-  .nav-links { display: none; }
   .hero-title { font-size: 3rem; }
+
+  /* Mobile Navbar Styles */
+  .mobile-menu-toggle {
+    display: block;
+  }
+
+  .nav-links {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 100%;
+    background: #fff;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+    z-index: 1000;
+  }
+
+  .nav-links.active {
+    transform: translateX(0);
+  }
+
+  .nav-links a {
+    font-size: 1.5rem;
+    margin: 1.5rem 0;
+    opacity: 1;
+  }
+
+  .nav-contact-btn {
+    margin-left: 0;
+    margin-top: 2rem;
+    font-size: 1rem;
+    padding: 1rem 3rem;
+  }
 }
 
 @media (max-width: 768px) {
