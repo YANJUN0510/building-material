@@ -40,6 +40,36 @@ const IntroSlider = () => {
     }
   ];
 
+  const animationRef = useRef(null);
+
+  const smoothScroll = (element, target, duration) => {
+    if (animationRef.current) cancelAnimationFrame(animationRef.current);
+
+    const start = element.scrollLeft;
+    const change = target - start;
+    const startTime = performance.now();
+
+    const animateScroll = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Ease in-out function
+        const ease = progress < 0.5 
+            ? 2 * progress * progress 
+            : -1 + (4 - 2 * progress) * progress;
+
+        element.scrollLeft = start + change * ease;
+
+        if (progress < 1) {
+            animationRef.current = requestAnimationFrame(animateScroll);
+        } else {
+            animationRef.current = null;
+        }
+    };
+
+    animationRef.current = requestAnimationFrame(animateScroll);
+  };
+
   useEffect(() => {
     if (isPaused) return;
 
@@ -48,26 +78,32 @@ const IntroSlider = () => {
 
     const interval = setInterval(() => {
         const maxScrollLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+        const nextScrollLeft = scrollContainer.scrollLeft + 320;
         
-        if (scrollContainer.scrollLeft >= maxScrollLeft - 5) {
-            scrollContainer.scrollTo({ left: 0, behavior: 'smooth' });
+        if (scrollContainer.scrollLeft >= maxScrollLeft - 10) {
+            // Reset to start smoothly but faster than normal scroll to avoid long rewind
+            smoothScroll(scrollContainer, 0, 1500);
         } else {
-            scrollContainer.scrollBy({ left: 320, behavior: 'smooth' });
+            // Slower, smoother scroll
+            smoothScroll(scrollContainer, nextScrollLeft, 1200);
         }
-    }, 3000);
+    }, 4000);
 
-    return () => clearInterval(interval);
+    return () => {
+        clearInterval(interval);
+        if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
   }, [isPaused]);
 
   const scroll = (direction) => {
     if (scrollRef.current) {
       const { current } = scrollRef;
       const scrollAmount = 320; // Card width + gap
-      if (direction === 'left') {
-        current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-      } else {
-        current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      }
+      const target = direction === 'left' 
+        ? current.scrollLeft - scrollAmount 
+        : current.scrollLeft + scrollAmount;
+      
+      smoothScroll(current, target, 800); // Slightly faster for user interaction
     }
   };
 

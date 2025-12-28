@@ -1495,7 +1495,7 @@ footer {
   display: flex;
   gap: 20px;
   overflow-x: auto;
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth; Removed to allow JS control */
   padding: 20px 5px; /* Small padding for shadow */
   scrollbar-width: none;
   -ms-overflow-style: none;
