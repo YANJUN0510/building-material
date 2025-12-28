@@ -10,6 +10,7 @@ const Homepage = () => {
   const [slides, setSlides] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const sliderRef = useRef(null);
+  const [activeProductIndex, setActiveProductIndex] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,6 +60,13 @@ const Homepage = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    setActiveProductIndex(0);
+    if (sliderRef.current?.children?.[0]) {
+      sliderRef.current.children[0].scrollIntoView({ behavior: 'smooth', inline: 'start' });
+    }
+  }, [activeSlide]);
+
   if (isLoading) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-black text-white">
@@ -71,14 +79,13 @@ const Homepage = () => {
 
   const currentSlideData = slides[activeSlide];
 
-  const scrollSlider = (direction) => {
-    if (sliderRef.current) {
-      const scrollAmount = 300;
-      if (direction === 'left') {
-        sliderRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-      } else {
-        sliderRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      }
+  const scrollToProduct = (index) => {
+    if (!currentSlideData.products.length) return;
+    const clampedIndex = Math.max(0, Math.min(index, currentSlideData.products.length - 1));
+    setActiveProductIndex(clampedIndex);
+    const target = sliderRef.current?.children?.[clampedIndex];
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
     }
   };
 
@@ -150,8 +157,22 @@ const Homepage = () => {
                 ))}
             </div>
             <div className="slider-controls">
-                <button className="control-btn" onClick={() => scrollSlider('left')}><ChevronLeft size={20}/></button>
-                <button className="control-btn" onClick={() => scrollSlider('right')}><ChevronRight size={20}/></button>
+                <button
+                  className="control-btn"
+                  onClick={() => scrollToProduct(activeProductIndex - 1)}
+                  aria-label="Previous product"
+                  disabled={activeProductIndex === 0}
+                >
+                  <ChevronLeft size={20}/>
+                </button>
+                <button
+                  className="control-btn"
+                  onClick={() => scrollToProduct(activeProductIndex + 1)}
+                  aria-label="Next product"
+                  disabled={activeProductIndex === currentSlideData.products.length - 1}
+                >
+                  <ChevronRight size={20}/>
+                </button>
             </div>
         </div>
       </div>

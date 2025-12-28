@@ -1275,6 +1275,12 @@ footer {
   transform: scale(1.1);
 }
 
+.control-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+}
+
 /* Animations */
 .animate-fade-in {
   animation: fadeIn 1s ease-out forwards;
