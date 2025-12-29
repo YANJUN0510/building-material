@@ -365,20 +365,23 @@
   background: rgba(0,0,0,0.8);
   z-index: 1000;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 0;
 }
 
 .col-modal-content {
   background: #fff;
   width: 100%;
-  max-width: 900px;
-  max-height: 90vh;
-  overflow-y: auto;
+  max-width: 560px;
+  max-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
+  border-radius: 12px 0 0 12px;
+  box-shadow: -20px 0 60px rgba(0,0,0,0.25);
 }
 
 .col-modal-close {
@@ -389,99 +392,175 @@
   border: none;
   cursor: pointer;
   z-index: 10;
-  color: #000;
-  background: rgba(255,255,255,0.8);
+  color: #111;
+  background: rgba(255,255,255,0.9);
   border-radius: 50%;
-  padding: 0.5rem;
+  padding: 0.4rem;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
 }
 
 .col-modal-grid {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
 }
 
 .col-modal-image {
   flex: 1;
-  min-height: 400px;
+  min-height: 280px;
+  height: 40vh;
+  background: #f2f2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
 }
 
 .col-modal-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .col-modal-details {
   flex: 1;
-  padding: 3rem;
+  padding: 2rem 2.25rem 2.5rem;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  gap: 1.25rem;
 }
 
 .col-modal-header-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 
 .col-modal-details h2 {
   font-family: 'Cinzel', serif;
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.9rem;
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.02em;
 }
 
 .col-modal-code {
   font-family: 'Montserrat', sans-serif;
   font-size: 0.9rem;
-  color: #888;
+  color: #777;
   font-weight: 500;
 }
 
+.col-modal-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+.col-modal-price-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: #777;
+}
+
+.col-modal-price-value {
+  font-size: 1.02rem;
+  font-weight: 500;
+  color: #1f1f1f;
+  text-align: right;
+}
+
+.col-modal-price-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #2b2b2b;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-skip-ink: none;
+}
+
+.col-modal-price-link:hover {
+  color: #000;
+}
+
 .col-modal-desc {
-  color: #555;
-  line-height: 1.6;
-  margin-bottom: 2rem;
+  color: #4f4f4f;
+  line-height: 1.7;
+  margin-bottom: 0;
+}
+
+.col-modal-desc-paragraph {
+  margin: 0 0 0.9rem;
+}
+
+.col-modal-desc-paragraph:last-child {
+  margin-bottom: 0;
 }
 
 .col-modal-specs {
-  margin-bottom: 2rem;
+  margin-bottom: 0;
   padding: 1.5rem;
-  background: #f9f9f9;
+  background: #f7f7f7;
+  border: 1px solid #eee;
+  border-radius: 6px;
 }
 
 .col-modal-specs h3 {
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   border-bottom: 1px solid #eee;
   padding-bottom: 0.5rem;
+  color: #666;
 }
 
 .col-modal-specs ul {
   list-style: none;
   padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.9rem;
 }
 
 .col-modal-specs li {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
+  display: grid;
+  grid-template-columns: minmax(120px, 35%) 1fr;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  font-size: 0.92rem;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.col-modal-specs li:last-child {
+  border-bottom: none;
 }
 
 .spec-key {
-  color: #888;
+  color: #666;
   text-transform: capitalize;
+  line-height: 1.4;
 }
 
 .spec-val {
   font-weight: 500;
-  color: #333;
+  color: #2f2f2f;
+  line-height: 1.5;
 }
 
 .col-modal-actions {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   margin-top: auto;
+  padding-top: 0.5rem;
 }
 
 /* Inspiration Section */
@@ -714,6 +793,7 @@
     height: 100vh;
     max-height: 100vh;
     border-radius: 0;
+    max-width: 100%;
   }
   .col-modal-image {
     height: 250px;

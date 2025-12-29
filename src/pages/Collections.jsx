@@ -368,8 +368,39 @@ const Collections = () => {
                     <h2>{selectedProduct.name}</h2>
                     <span className="col-modal-code">{selectedProduct.code}</span>
                   </div>
+
+                  <div className="col-modal-price">
+                    <span className="col-modal-price-label">Price</span>
+                    {selectedProduct.price === null || selectedProduct.price === undefined || selectedProduct.price === '' ? (
+                      <button
+                        type="button"
+                        className="col-modal-price-value col-modal-price-link"
+                        onClick={() => setIsContactOpen(true)}
+                      >
+                        Contact for pricing
+                      </button>
+                    ) : (
+                      <span className="col-modal-price-value">
+                        {typeof selectedProduct.price === 'number'
+                          ? `$${selectedProduct.price.toLocaleString()}`
+                          : selectedProduct.price}
+                      </span>
+                    )}
+                  </div>
                   
-                  <p className="col-modal-desc">{selectedProduct.description}</p>
+                  <div className="col-modal-desc">
+                    {selectedProduct.description
+                      ? selectedProduct.description
+                          .split(/\n/)
+                          .map((paragraph) => paragraph.trim())
+                          .filter(Boolean)
+                          .map((paragraph, idx) => (
+                            <p className="col-modal-desc-paragraph" key={idx}>
+                              {paragraph}
+                            </p>
+                          ))
+                      : null}
+                  </div>
                   
                   <div className="col-modal-specs">
                     <h3>Specifications</h3>

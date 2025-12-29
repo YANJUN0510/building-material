@@ -100,7 +100,6 @@ const Navbar = () => {
           <Link to="/">Home</Link>
           <Link to="/collections">Collections</Link>
           <Link to="/philosophy">Philosophy</Link>
-          <Link to="/#showcase">Projects</Link>
           <button 
             className="nav-contact-btn" 
             onClick={() => {
