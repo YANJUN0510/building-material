@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Download, X, Loader2, Search } from 'lucide-react';
+import { ArrowRight, Download, X, Loader2, Search, FileText } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import ContactModal from '../components/ContactModal';
 import './Collections.css';
@@ -252,7 +252,7 @@ const Collections = () => {
                               onClick={(e) => handleDownloadPDF(series, e)}
                               title="Download PDF Catalog"
                             >
-                              <Download size={14} />
+                              <FileText size={14} />
                             </button>
                           )}
                         </div>
