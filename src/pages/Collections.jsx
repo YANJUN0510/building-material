@@ -1,13 +1,16 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Download, X, Loader2, Search } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import ContactModal from '../components/ContactModal';
 import './Collections.css';
 
 const API_URL = 'https://solidoro-backend-production.up.railway.app/api/building-materials';
 
 const Collections = () => {
+  const location = useLocation();
   const [products, setProducts] = useState([]);
+  const [seriesData, setSeriesData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,29 +18,42 @@ const Collections = () => {
 
   // Fetch data from API
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(API_URL);
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
-        }
-        const result = await response.json();
-        // Assuming API returns { status: "success", data: [...] }
-        if (result.status === 'success' && Array.isArray(result.data)) {
-          setProducts(result.data);
+        // Fetch both products and series data in parallel
+        const [productsRes, seriesRes] = await Promise.all([
+          fetch(API_URL),
+          fetch('https://solidoro-backend-production.up.railway.app/api/building-material-series')
+        ]);
+
+        if (!productsRes.ok) throw new Error('Failed to fetch products');
+        if (!seriesRes.ok) throw new Error('Failed to fetch series');
+
+        const productsResult = await productsRes.json();
+        const seriesResult = await seriesRes.json();
+
+        // Set products
+        if (productsResult.status === 'success' && Array.isArray(productsResult.data)) {
+          setProducts(productsResult.data);
         } else {
-          // Fallback if structure is different (e.g. direct array)
-          setProducts(Array.isArray(result) ? result : []);
+          setProducts(Array.isArray(productsResult) ? productsResult : []);
+        }
+
+        // Set series data
+        if (seriesResult.status === 'success' && Array.isArray(seriesResult.data)) {
+          setSeriesData(seriesResult.data);
+        } else {
+          setSeriesData(Array.isArray(seriesResult) ? seriesResult : []);
         }
       } catch (err) {
-        console.error("Error loading building materials:", err);
+        console.error("Error loading data:", err);
         setError("Unable to load collections. Please try again later.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchData();
   }, []);
 
   // Extract hierarchy: Category -> Series
@@ -81,10 +97,45 @@ const Collections = () => {
     }
   }, [defaultSeries, activeSeries]);
 
+  // Auto-open product detail if navigated from Homepage
+  useEffect(() => {
+    if (location.state?.productCode && products.length > 0) {
+      const product = products.find(p => p.code === location.state.productCode);
+      if (product) {
+        setSelectedProduct(product);
+        // Set active series to the product's series
+        if (product.series) {
+          setActiveSeries(product.series);
+        }
+      }
+      // Clear the state after using it
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, products]);
+
   // Handle series selection (clears search)
   const handleSeriesClick = (series) => {
     setActiveSeries(series);
     setSearchQuery(""); // Clear search when navigating
+  };
+
+  // Get PDF URL for a series
+  const getSeriesPDF = (seriesName) => {
+    const series = seriesData.find(s => s.name === seriesName);
+    return series?.pdf || null;
+  };
+
+  // Handle PDF download
+  const handleDownloadPDF = (seriesName, e) => {
+    e.stopPropagation(); // Prevent series selection when clicking download
+    const pdfUrl = getSeriesPDF(seriesName);
+    
+    if (pdfUrl) {
+      // Open PDF in new tab
+      window.open(pdfUrl, '_blank');
+    } else {
+      alert('PDF not available for this series.');
+    }
   };
 
   // Filter products based on search query OR active series
@@ -176,24 +227,37 @@ const Collections = () => {
                 <div key={category} className="col-nav-group">
                   <h4 className="col-nav-category">{category}</h4>
                   <div className="col-nav-items">
-                    {seriesList.map((series) => (
-                      <button 
-                        key={series}
-                        className={`col-nav-btn ${activeSeries === series && !searchQuery ? 'active' : ''}`}
-                        onClick={() => handleSeriesClick(series)}
-                      >
-                        <span className="col-nav-text">{series}</span>
-                        {activeSeries === series && !searchQuery && (
-                          <motion.div 
-                            layoutId={null}
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: '100%' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="col-nav-indicator" 
-                          />
-                        )}
-                      </button>
-                    ))}
+                    {seriesList.map((series) => {
+                      const hasPDF = getSeriesPDF(series);
+                      return (
+                        <div key={series} className="col-nav-item-wrapper">
+                          <button 
+                            className={`col-nav-btn ${activeSeries === series && !searchQuery ? 'active' : ''}`}
+                            onClick={() => handleSeriesClick(series)}
+                          >
+                            <span className="col-nav-text">{series}</span>
+                            {activeSeries === series && !searchQuery && (
+                              <motion.div 
+                                layoutId={null}
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: '100%' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="col-nav-indicator" 
+                              />
+                            )}
+                          </button>
+                          {hasPDF && (
+                            <button
+                              className="col-nav-download-btn"
+                              onClick={(e) => handleDownloadPDF(series, e)}
+                              title="Download PDF Catalog"
+                            >
+                              <Download size={14} />
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ))}

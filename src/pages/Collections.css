@@ -151,6 +151,13 @@
   border-left: 1px solid #eee;
 }
 
+.col-nav-item-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
 .col-nav-btn {
   text-align: left;
   background: none;
@@ -162,6 +169,7 @@
   font-size: 0.9rem;
   color: #666;
   transition: color 0.3s;
+  flex: 1;
 }
 
 .col-nav-btn:hover {
@@ -171,6 +179,25 @@
 .col-nav-btn.active {
   color: #000;
   font-weight: 600;
+}
+
+.col-nav-download-btn {
+  background: none;
+  border: none;
+  padding: 0.4rem;
+  cursor: pointer;
+  color: #888;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.col-nav-download-btn:hover {
+  color: #000;
+  background: #f0f0f0;
 }
 
 .col-nav-indicator {

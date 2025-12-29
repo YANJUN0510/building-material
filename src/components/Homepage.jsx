@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowRight, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const CATEGORIES_API_URL = 'https://solidoro-backend-production.up.railway.app/api/building-material-categories';
 const PRODUCTS_API_URL = 'https://solidoro-backend-production.up.railway.app/api/building-materials';
@@ -11,6 +11,7 @@ const Homepage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const sliderRef = useRef(null);
   const [activeProductIndex, setActiveProductIndex] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,8 +43,13 @@ const Homepage = () => {
             description: cat.description,
             bgImage: cat.image,
             products: categoryProducts.slice(0, 5).map(p => ({
+              code: p.code, // Include code for navigation
               name: p.name || p.series, // Fallback to series if name is missing
               category: p.category,
+              series: p.series,
+              description: p.description,
+              specs: p.specs,
+              price: p.price,
               image: p.image || (p.images && p.images[0]) || cat.image // Fallback image
             }))
           };
@@ -62,10 +68,35 @@ const Homepage = () => {
 
   useEffect(() => {
     setActiveProductIndex(0);
-    if (sliderRef.current?.children?.[0]) {
-      sliderRef.current.children[0].scrollIntoView({ behavior: 'smooth', inline: 'start' });
+    // Reset scroll position to the first product when changing category
+    const container = sliderRef.current;
+    if (container) {
+      container.scrollTo({ left: 0, behavior: 'smooth' });
     }
   }, [activeSlide]);
+
+  // Auto-play functionality for products
+  useEffect(() => {
+    if (slides.length === 0 || !slides[activeSlide]) return;
+    const currentSlide = slides[activeSlide];
+    if (!currentSlide.products || currentSlide.products.length === 0) return;
+
+    const interval = setInterval(() => {
+      setActiveProductIndex(prev => {
+        const nextIndex = (prev + 1) % currentSlide.products.length;
+        // Scroll within the container only (not the whole page)
+        const container = sliderRef.current;
+        const target = container?.children?.[nextIndex];
+        if (container && target) {
+          const scrollLeft = target.offsetLeft - container.offsetLeft;
+          container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+        }
+        return nextIndex;
+      });
+    }, 3000); // Auto-play every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [slides, activeSlide]);
 
   if (isLoading) {
     return (
@@ -83,10 +114,18 @@ const Homepage = () => {
     if (!currentSlideData.products.length) return;
     const clampedIndex = Math.max(0, Math.min(index, currentSlideData.products.length - 1));
     setActiveProductIndex(clampedIndex);
-    const target = sliderRef.current?.children?.[clampedIndex];
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+    // Scroll within the container only (not the whole page)
+    const container = sliderRef.current;
+    const target = container?.children?.[clampedIndex];
+    if (container && target) {
+      const scrollLeft = target.offsetLeft - container.offsetLeft;
+      container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
     }
+  };
+
+  const handleProductClick = (product) => {
+    // Navigate to collections page with product info
+    navigate('/collections', { state: { productCode: product.code } });
   };
 
   return (
@@ -140,11 +179,11 @@ const Homepage = () => {
         <div className="hero-product-slider animate-slide-in-right" key={`slider-${currentSlideData.id}`}>
             <div className="product-cards-wrapper" ref={sliderRef}>
                 {currentSlideData.products.map((product, idx) => (
-                    <Link 
-                      to="/collections" 
+                    <div 
                       key={idx} 
                       className="mini-product-card animate-card-up"
                       style={{ animationDelay: `${idx * 0.1 + 0.3}s` }}
+                      onClick={() => handleProductClick(product)}
                     >
                         <div className="card-img">
                             <img src={product.image} alt={product.name} />
@@ -153,7 +192,7 @@ const Homepage = () => {
                             <h4>{product.name}</h4>
                             <span>{product.category}</span>
                         </div>
-                    </Link>
+                    </div>
                 ))}
             </div>
             <div className="slider-controls">

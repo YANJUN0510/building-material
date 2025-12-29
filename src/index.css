@@ -1498,6 +1498,7 @@ footer {
   opacity: 0.9;
   font-weight: 300;
   max-width: 90%;
+  white-space: pre-line;
 }
 
 .hero-cta-btn {
