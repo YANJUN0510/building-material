@@ -34,15 +34,22 @@ const Homepage = () => {
         // Map categories to slides format and attach relevant products
         const mappedSlides = categories.map(cat => {
           // Filter products that belong to this category
-          // Note: Matching logic depends on exact string match between cat.category and product.category
-          const categoryProducts = products.filter(p => p.category === cat.category);
+          let categoryProducts = products.filter(p => p.category === cat.category);
+          
+          // Special filter for Aluminium Building Products to only show Aluminium Ceiling Baffle series
+          if (cat.category === 'Aluminium Building Products') {
+            categoryProducts = categoryProducts.filter(p => p.series === 'Aluminium Ceiling Baffle');
+          }
+          
+          // Randomize products for this category
+          const shuffledProducts = [...categoryProducts].sort(() => 0.5 - Math.random());
           
           return {
             id: cat.id,
             title: cat.category,
             description: cat.description,
             bgImage: cat.image,
-            products: categoryProducts.slice(0, 5).map(p => ({
+            products: shuffledProducts.slice(0, 5).map(p => ({
               code: p.code, // Include code for navigation
               name: p.name || p.series, // Fallback to series if name is missing
               category: p.category,
