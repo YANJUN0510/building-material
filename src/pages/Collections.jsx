@@ -89,7 +89,6 @@ const Collections = () => {
 
   const [activeSeries, setActiveSeries] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Update activeSeries when data loads
   useEffect(() => {
@@ -355,66 +354,13 @@ const Collections = () => {
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <button className="col-modal-close" onClick={() => {
-                setSelectedProduct(null);
-                setCurrentImageIndex(0);
-              }}>
+              <button className="col-modal-close" onClick={() => setSelectedProduct(null)}>
                 <X size={24} />
               </button>
               
               <div className="col-modal-grid">
                 <div className="col-modal-image">
-                  {(() => {
-                    // Combine main image and gallery images
-                    const allImages = [
-                      selectedProduct.image,
-                      ...(selectedProduct.gallery || [])
-                    ].filter(Boolean);
-
-                    const handlePrevImage = () => {
-                      setCurrentImageIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
-                    };
-
-                    const handleNextImage = () => {
-                      setCurrentImageIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
-                    };
-
-                    return (
-                      <>
-                        <div className="col-modal-main-image">
-                          <img src={allImages[currentImageIndex]} alt={selectedProduct.name} />
-                          
-                          {allImages.length > 1 && (
-                            <>
-                              <button className="col-image-nav-btn prev" onClick={handlePrevImage}>
-                                ‹
-                              </button>
-                              <button className="col-image-nav-btn next" onClick={handleNextImage}>
-                                ›
-                              </button>
-                              <div className="col-image-counter">
-                                {currentImageIndex + 1} / {allImages.length}
-                              </div>
-                            </>
-                          )}
-                        </div>
-                        
-                        {allImages.length > 1 && (
-                          <div className="col-modal-thumbnails">
-                            {allImages.map((img, index) => (
-                              <div
-                                key={index}
-                                className={`col-thumbnail ${index === currentImageIndex ? 'active' : ''}`}
-                                onClick={() => setCurrentImageIndex(index)}
-                              >
-                                <img src={img} alt={`${selectedProduct.name} - ${index + 1}`} />
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    );
-                  })()}
+                   <img src={selectedProduct.image} alt={selectedProduct.name} />
                 </div>
                 <div className="col-modal-details">
                   <span className="col-tag">{selectedProduct.category} / {selectedProduct.series}</span>
@@ -441,7 +387,7 @@ const Collections = () => {
                       </span>
                     )}
                   </div>
-
+                  
                   <div className="col-modal-desc">
                     {selectedProduct.description
                       ? selectedProduct.description
