@@ -969,6 +969,10 @@ footer {
 
 /* Responsive */
 @media (max-width: 1024px) {
+  .nav-logo-text {
+    display: none;
+  }
+
   .products-grid { grid-template-columns: 1fr; }
   .sourcing-grid { grid-template-columns: 1fr 1fr; }
   .showcase { grid-template-columns: 1fr; grid-template-rows: repeat(4, 1fr); height: auto; }
