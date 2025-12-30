@@ -85,6 +85,7 @@ const Navbar = () => {
       <nav className={`navbar ${isFixed ? 'fixed' : 'absolute'} ${isHidden ? 'hidden' : ''} ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
         <Link to="/" className="logo">
           <img src="/logo.png" alt="Logo" className="nav-logo-img" />
+          <span className="nav-logo-text">Building Material Warehouse</span>
         </Link>
 
         {/* Mobile Menu Toggle */}

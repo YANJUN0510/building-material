@@ -253,6 +253,14 @@
   margin-bottom: 4rem;
 }
 
+.col-category-header-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
 .col-category-header h2 {
   font-family: 'Cinzel', serif;
   font-size: 2.5rem;
@@ -263,6 +271,23 @@
   color: #666;
   font-weight: 300;
   max-width: 600px;
+}
+
+.col-sort-btn {
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #111;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.col-sort-btn:hover {
+  border-color: #111;
+  color: #000;
 }
 
 .col-grid {
@@ -873,6 +898,9 @@
   }
   .col-title {
     font-size: 2.5rem;
+  }
+  .col-category-header-row {
+    align-items: flex-start;
   }
   .col-subtitle {
     font-size: 0.9rem;

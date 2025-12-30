@@ -15,6 +15,7 @@ const Collections = () => {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isCodeAsc, setIsCodeAsc] = useState(true);
 
   // Fetch data from API
   useEffect(() => {
@@ -140,20 +141,30 @@ const Collections = () => {
 
   // Filter products based on search query OR active series
   const filteredProducts = useMemo(() => {
+    const sortByCode = (items) => {
+      const compare = (a, b) => {
+        const codeA = (a.code || '').toString();
+        const codeB = (b.code || '').toString();
+        return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' });
+      };
+      return [...items].sort((a, b) => (isCodeAsc ? compare(a, b) : compare(b, a)));
+    };
+
     // 1. If searching, filter globally
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      return products.filter(p => 
+      const results = products.filter(p => 
         (p.code && p.code.toLowerCase().includes(query)) ||
         (p.name && p.name.toLowerCase().includes(query)) ||
         (p.description && p.description.toLowerCase().includes(query))
       );
+      return sortByCode(results);
     }
     
     // 2. Otherwise, filter by active series
     if (!activeSeries) return [];
-    return products.filter(p => p.series === activeSeries);
-  }, [products, activeSeries, searchQuery]);
+    return sortByCode(products.filter(p => p.series === activeSeries));
+  }, [products, activeSeries, searchQuery, isCodeAsc]);
 
   if (isLoading) {
     return (
@@ -283,14 +294,32 @@ const Collections = () => {
               >
                 {searchQuery ? (
                   <div className="col-category-header">
-                    <h2>Search Results</h2>
+                    <div className="col-category-header-row">
+                      <h2>Search Results</h2>
+                      <button
+                        className="col-sort-btn"
+                        onClick={() => setIsCodeAsc((prev) => !prev)}
+                        type="button"
+                      >
+                        Order by code: {isCodeAsc ? 'Ascending' : 'Descending'}
+                      </button>
+                    </div>
                     <p>
                       Found {filteredProducts.length} items matching "{searchQuery}"
                     </p>
                   </div>
                 ) : activeSeries ? (
                   <div className="col-category-header">
-                    <h2>{activeSeries}</h2>
+                    <div className="col-category-header-row">
+                      <h2>{activeSeries}</h2>
+                      <button
+                        className="col-sort-btn"
+                        onClick={() => setIsCodeAsc((prev) => !prev)}
+                        type="button"
+                      >
+                        Order by code: {isCodeAsc ? 'Ascending' : 'Descending'}
+                      </button>
+                    </div>
                     <p>Explore our range of {activeSeries.toLowerCase()} designed for modern architecture.</p>
                   </div>
                 ) : (
