@@ -1,13 +1,14 @@
 .floating-call-container {
   position: fixed;
-  bottom: 30px;
+  bottom: 110px; /* Moved up globally to avoid ElevenLabs overlap */
   /* Support for modern mobile browsers with safe areas (notches) */
-  bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(110px + env(safe-area-inset-bottom, 0px));
   right: 30px;
   right: calc(30px + env(safe-area-inset-right, 0px));
   /* Significantly increase z-index to stay above almost everything */
   z-index: 2100;
   pointer-events: none; /* Container doesn't block background clicks */
+  transition: bottom 0.3s ease; /* Smooth transition for layout shifts */
 }
 
 .floating-call-btn {
@@ -173,8 +174,8 @@
     height: 55px;
   }
   .floating-call-container {
-    bottom: 25px;
-    bottom: calc(25px + env(safe-area-inset-bottom, 0px));
+    bottom: 110px; /* Raised to accommodate ElevenLabs widget below */
+    bottom: calc(110px + env(safe-area-inset-bottom, 0px));
     right: 20px;
     right: calc(20px + env(safe-area-inset-right, 0px));
   }
