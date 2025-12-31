@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Mail, CheckCircle } from 'lucide-react';
+import { X, Mail, CheckCircle, Phone } from 'lucide-react';
 
 const ContactModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
@@ -12,6 +12,8 @@ const ContactModal = ({ isOpen, onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [showCallModal, setShowCallModal] = useState(false);
+  const phoneNumber = '+61348285516';
 
   if (!isOpen) return null;
 
@@ -89,6 +91,16 @@ const ContactModal = ({ isOpen, onClose }) => {
                 <div className="method-details">
                   <span className="method-label">Chat to us</span>
                   <a href="mailto:sales@quantummax.ai" className="method-value">sales@quantummax.ai</a>
+                </div>
+              </div>
+              
+              <div className="contact-method-item contact-phone-item" onClick={() => setShowCallModal(true)}>
+                <div className="method-icon phone-icon">
+                  <Phone size={20} />
+                </div>
+                <div className="method-details">
+                  <span className="method-label">Call us</span>
+                  <span className="method-value phone-number">+61 3 4828 5516</span>
                 </div>
               </div>
             </div>
@@ -192,6 +204,28 @@ const ContactModal = ({ isOpen, onClose }) => {
           )}
         </div>
       </div>
+
+      {/* Call Modal - Reused from CallButton */}
+      {showCallModal && (
+        <div className="call-modal-overlay" onClick={() => setShowCallModal(false)}>
+          <div className="call-modal-content" onClick={e => e.stopPropagation()}>
+            <button className="call-modal-close" onClick={() => setShowCallModal(false)}>
+              <X size={20} />
+            </button>
+            <div className="call-modal-body">
+              <div className="call-icon-circle">
+                <Phone size={32} />
+              </div>
+              <h3 className="call-modal-title">AI Consulting Support</h3>
+              <p className="call-modal-text">Call our AI agent for immediate assistance and technical consulting:</p>
+              <a href={`tel:${phoneNumber}`} className="call-number-link">
+                +61 3 4828 5516
+              </a>
+              <p className="call-note">Call +61 3 4828 5516 to get AI-powered answers and project consulting.</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

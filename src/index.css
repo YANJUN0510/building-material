@@ -233,6 +233,27 @@ h1, h2, h3, h4 {
   gap: 1rem;
 }
 
+.contact-phone-item {
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.contact-phone-item:hover {
+  opacity: 0.8;
+}
+
+.phone-icon {
+  background: rgba(255,255,255,0.15) !important;
+  border-radius: 6px;
+}
+
+.phone-number {
+  font-family: 'Cinzel', serif !important;
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  color: #fff !important;
+}
+
 .method-icon {
   width: 40px;
   height: 40px;
@@ -1989,4 +2010,104 @@ footer {
   .slider-nav-btn {
     display: none; /* Hide arrows on mobile/tablet */
   }
+}
+
+/* Call Modal Styles - Reused from CallButton */
+.call-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.3s ease;
+  padding: 20px;
+}
+
+.call-modal-content {
+  background: #fff;
+  padding: 40px 30px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.call-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #f1f1f1;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.call-modal-close:hover {
+  background: #e5e5e5;
+  color: #000;
+}
+
+.call-icon-circle {
+  width: 80px;
+  height: 80px;
+  background: #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 25px;
+  color: #fff;
+}
+
+.call-modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+  color: #000;
+  font-weight: 600;
+}
+
+.call-modal-text {
+  color: #555;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.call-number-link {
+  display: block;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #000;
+  text-decoration: none;
+  margin-bottom: 25px;
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+
+.call-number-link:hover {
+  background: #f0f0f0;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }

@@ -6,7 +6,6 @@ import Home from './pages/Home';
 import PhilosophyPage from './pages/Philosophy';
 import Collections from './pages/Collections';
 import ScrollToTop from './components/ScrollToTop';
-import CallButton from './components/CallButton';
 import ElevenLabsWidget from './components/ElevenLabsWidget';
 
 function App() {
@@ -20,7 +19,6 @@ function App() {
         <Route path="/philosophy" element={<PhilosophyPage />} />
         <Route path="/collections" element={<Collections />} />
       </Routes>
-      <CallButton />
       <ElevenLabsWidget />
       <Footer />
     </Router>
