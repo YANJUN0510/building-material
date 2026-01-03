@@ -2,17 +2,15 @@ import React, { useEffect } from 'react';
 
 const ElevenLabsWidget = () => {
   useEffect(() => {
-    // Append the script to the body
-    const script = document.createElement('script');
-    script.src = "https://unpkg.com/@elevenlabs/convai-widget-embed";
-    script.async = true;
-    script.type = "text/javascript";
-    document.body.appendChild(script);
+    const existing = document.querySelector('script[data-elevenlabs-convai="1"]');
+    if (existing) return;
 
-    return () => {
-      // Cleanup script on unmount
-      document.body.removeChild(script);
-    };
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
+    script.async = true;
+    script.type = 'text/javascript';
+    script.dataset.elevenlabsConvai = '1';
+    document.body.appendChild(script);
   }, []);
 
   return (
@@ -30,4 +28,3 @@ const ElevenLabsWidget = () => {
 };
 
 export default ElevenLabsWidget;
-

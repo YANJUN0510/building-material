@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
-import ContactModal from './ContactModal';
+import { useAuth } from '../auth/AuthContext';
 
 const Navbar = () => {
   // 使用 ref 来追踪状态，避免闭包陷阱，同时减少不必要的重渲染
@@ -10,9 +10,9 @@ const Navbar = () => {
     isHidden: false
   });
   
-  const [isContactOpen, setIsContactOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const lastScrollY = useRef(0);
   // 用 ref 记录上一次的渲染状态，方便逻辑判断
@@ -101,20 +101,13 @@ const Navbar = () => {
           <Link to="/">Home</Link>
           <Link to="/collections">Collections</Link>
           <Link to="/philosophy">Philosophy</Link>
-          <button 
-            className="nav-contact-btn" 
-            onClick={() => {
-              setIsContactOpen(true);
-              setIsMobileMenuOpen(false);
-            }}
-          >
-            Contact
-          </button>
+          {user ? (
+            <Link to="/my-account">My Account</Link>
+          ) : (
+            <Link to="/login">Login</Link>
+          )}
         </div>
       </nav>
-
-      {/* Contact Modal */}
-      <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
     </>
   );
 };

@@ -1,8 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Download, X, Loader2, Search, FileText } from 'lucide-react';
+import { ArrowRight, Download, X, Loader2, Search, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import ContactModal from '../components/ContactModal';
 import './Collections.css';
 
 const API_URL = 'https://solidoro-backend-production.up.railway.app/api/building-materials';
@@ -14,8 +13,9 @@ const Collections = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isContactOpen, setIsContactOpen] = useState(false);
   const [isCodeAsc, setIsCodeAsc] = useState(true);
+
+  const openContact = () => window.dispatchEvent(new Event('bmw:open-contact'));
 
   // Fetch data from API
   useEffect(() => {
@@ -90,6 +90,7 @@ const Collections = () => {
 
   const [activeSeries, setActiveSeries] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Update activeSeries when data loads
   useEffect(() => {
@@ -104,6 +105,7 @@ const Collections = () => {
       const product = products.find(p => p.code === location.state.productCode);
       if (product) {
         setSelectedProduct(product);
+        setCurrentImageIndex(0); // Reset image index when opening product
         // Set active series to the product's series
         if (product.series) {
           setActiveSeries(product.series);
@@ -113,6 +115,51 @@ const Collections = () => {
       window.history.replaceState({}, document.title);
     }
   }, [location.state, products]);
+
+  // Get all images for a product (main image + gallery)
+  const getAllImages = (product) => {
+    const images = [];
+    if (product.image) {
+      images.push(product.image);
+    }
+    if (product.gallery && Array.isArray(product.gallery)) {
+      product.gallery.forEach(img => {
+        if (img && typeof img === 'string') {
+          images.push(img);
+        }
+      });
+    }
+    return images;
+  };
+
+  // Handle image navigation
+  const handleNextImage = (e) => {
+    e.stopPropagation();
+    if (selectedProduct) {
+      const allImages = getAllImages(selectedProduct);
+      setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
+    }
+  };
+
+  const handlePrevImage = (e) => {
+    e.stopPropagation();
+    if (selectedProduct) {
+      const allImages = getAllImages(selectedProduct);
+      setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+    }
+  };
+
+  const handleThumbnailClick = (index, e) => {
+    e.stopPropagation();
+    setCurrentImageIndex(index);
+  };
+
+  // Reset image index when product changes
+  useEffect(() => {
+    if (selectedProduct) {
+      setCurrentImageIndex(0);
+    }
+  }, [selectedProduct]);
 
   // Handle series selection (clears search)
   const handleSeriesClick = (series) => {
@@ -389,7 +436,60 @@ const Collections = () => {
               
               <div className="col-modal-grid">
                 <div className="col-modal-image">
-                   <img src={selectedProduct.image} alt={selectedProduct.name} />
+                  {(() => {
+                    const allImages = getAllImages(selectedProduct);
+                    if (allImages.length === 0) {
+                      return (
+                        <div className="col-modal-main-image">
+                          <p>No image available</p>
+                        </div>
+                      );
+                    }
+                    return (
+                      <>
+                        <div className="col-modal-main-image">
+                          <img 
+                            src={allImages[currentImageIndex]} 
+                            alt={`${selectedProduct.name} - Image ${currentImageIndex + 1}`}
+                          />
+                          {allImages.length > 1 && (
+                            <>
+                              <button 
+                                className="col-image-nav-btn prev"
+                                onClick={handlePrevImage}
+                                aria-label="Previous image"
+                              >
+                                <ChevronLeft size={24} />
+                              </button>
+                              <button 
+                                className="col-image-nav-btn next"
+                                onClick={handleNextImage}
+                                aria-label="Next image"
+                              >
+                                <ChevronRight size={24} />
+                              </button>
+                              <div className="col-image-counter">
+                                {currentImageIndex + 1} / {allImages.length}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                        {allImages.length > 1 && (
+                          <div className="col-modal-thumbnails">
+                            {allImages.map((img, idx) => (
+                              <div
+                                key={idx}
+                                className={`col-thumbnail ${idx === currentImageIndex ? 'active' : ''}`}
+                                onClick={(e) => handleThumbnailClick(idx, e)}
+                              >
+                                <img src={img} alt={`Thumbnail ${idx + 1}`} />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
                 <div className="col-modal-details">
                   <span className="col-tag">{selectedProduct.category} / {selectedProduct.series}</span>
@@ -404,7 +504,7 @@ const Collections = () => {
                       <button
                         type="button"
                         className="col-modal-price-value col-modal-price-link"
-                        onClick={() => setIsContactOpen(true)}
+                        onClick={openContact}
                       >
                         Contact for pricing
                       </button>
@@ -456,7 +556,7 @@ const Collections = () => {
                   <div className="col-modal-actions">
                     <button 
                       className="col-btn-black"
-                      onClick={() => setIsContactOpen(true)}
+                      onClick={openContact}
                     >
                       Inquire
                     </button>
@@ -479,7 +579,7 @@ const Collections = () => {
           <div className="col-cta-buttons">
             <button 
               className="col-btn-white" 
-              onClick={() => setIsContactOpen(true)}
+              onClick={openContact}
             >
               Contact Sales
             </button>
@@ -487,8 +587,6 @@ const Collections = () => {
         </div>
       </section>
 
-      {/* Contact Modal */}
-      <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
     </div>
   );
 };
