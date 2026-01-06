@@ -1,5 +1,7 @@
 import React from 'react';
-import { useAuth } from '../auth/AuthContext';
+import { SignOutButton, useUser } from '@clerk/clerk-react';
+import { useEffect, useState } from 'react';
+import { useSupabaseAuthedClient } from '../auth/useSupabaseAuthedClient';
 
 function Section({ title, children }) {
   return (
@@ -96,13 +98,13 @@ function QuestAccount() {
       <Section title="Overview">
         <div className="account-grid">
           <div className="account-card">
-            <div className="account-card-title">成交额</div>
+            <div className="account-card-title">Total Spend</div>
             <div className="account-card-value">0</div>
-            <div className="account-card-note">（示例）后续可对接真实订单数据</div>
+            <div className="account-card-note">(Demo) This will be connected to real order data later.</div>
           </div>
           <div className="account-card">
-            <div className="account-card-title">已购买订单</div>
-            <div className="account-card-note">暂无订单</div>
+            <div className="account-card-title">Orders</div>
+            <div className="account-card-note">No orders yet.</div>
           </div>
         </div>
       </Section>
@@ -111,8 +113,44 @@ function QuestAccount() {
 }
 
 export default function MyAccount() {
-  const { user, logout } = useAuth();
-  const role = user?.role;
+  const { user, isLoaded } = useUser();
+  const supabase = useSupabaseAuthedClient();
+  const [profile, setProfile] = useState(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      if (!isLoaded || !user) return;
+      if (!supabase) {
+        setError('Missing Supabase env vars (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).');
+        return;
+      }
+
+      const { data, error: qerr } = await supabase
+        .from('profiles')
+        .select('id, clerk_user_id, role, display_name, email, disabled')
+        .single();
+
+      if (cancelled) return;
+      if (qerr) {
+        setError(qerr.message || 'Failed to load profile');
+        setProfile(null);
+        return;
+      }
+
+      setError('');
+      setProfile(data);
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoaded, user, supabase]);
+
+  const role = profile?.role;
 
   return (
     <div className="page account-page">
@@ -121,18 +159,23 @@ export default function MyAccount() {
           <h1 className="account-title metallic-text">My Account</h1>
           <div className="account-meta">
             <span className="account-pill">Role: {role}</span>
-            <span className="account-pill">User: {user?.username}</span>
+            <span className="account-pill">User: {user?.id}</span>
           </div>
         </div>
       </div>
 
+      {!isLoaded ? <div className="account-empty">Loading…</div> : null}
+      {error ? <div className="auth-error" role="alert">{error}</div> : null}
+
       {role === 'builder' ? <BuilderAccount /> : null}
       {role === 'trader' ? <TraderAccount /> : null}
-      {role === 'quest' ? <QuestAccount /> : null}
-      {!role ? <div className="account-empty">No role assigned.</div> : null}
+      {role === 'guest' ? <QuestAccount /> : null}
+      {!role ? <div className="account-empty">Profile not ready yet. If you just signed up, wait a few seconds and refresh.</div> : null}
 
       <div className="account-footer">
-        <button className="account-logout-danger" onClick={logout}>Logout</button>
+        <SignOutButton redirectUrl="/">
+          <button className="account-logout-danger" type="button">Logout</button>
+        </SignOutButton>
       </div>
     </div>
   );

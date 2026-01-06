@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Navigate, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -8,12 +8,26 @@ import Collections from './pages/Collections';
 import ScrollToTop from './components/ScrollToTop';
 import ContactModal from './components/ContactModal';
 import FloatingContactButton from './components/FloatingContactButton';
-import Login from './pages/Login';
 import MyAccount from './pages/MyAccount';
-import RequireAuth from './auth/RequireAuth';
+import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
+import AuthModal from './components/AuthModal';
+import SsoCallback from './pages/SsoCallback';
+
+function RequireClerkAuth({ children }) {
+  return (
+    <>
+      <SignedIn>{children}</SignedIn>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+    </>
+  );
+}
 
 function App() {
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const location = useLocation();
+  const backgroundLocation = location.state?.backgroundLocation || location;
 
   useEffect(() => {
     const handler = () => setIsContactOpen(true);
@@ -22,28 +36,32 @@ function App() {
   }, []);
 
   return (
-    <Router>
+    <>
       <ScrollToTop />
       <div className="dynamic-bg"></div>
       <Navbar />
-      <Routes>
+      <Routes location={backgroundLocation}>
         <Route path="/" element={<Home />} />
         <Route path="/philosophy" element={<PhilosophyPage />} />
         <Route path="/collections" element={<Collections />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Navigate to="/sign-in" replace />} />
+        <Route path="/sign-in/*" element={<Home />} />
+        <Route path="/sign-up/*" element={<Home />} />
+        <Route path="/sso-callback" element={<SsoCallback />} />
         <Route
           path="/my-account"
           element={
-            <RequireAuth>
+            <RequireClerkAuth>
               <MyAccount />
-            </RequireAuth>
+            </RequireClerkAuth>
           }
         />
       </Routes>
+      <AuthModal />
       <FloatingContactButton onClick={() => setIsContactOpen(true)} />
       <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
       <Footer />
-    </Router>
+    </>
   )
 }
 

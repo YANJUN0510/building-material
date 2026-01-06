@@ -375,25 +375,24 @@ h1, h2, h3, h4 {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-light);
-  /* 优化 transition，确保 transform 变化时有动画 */
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
 }
 
 .navbar.absolute {
   position: absolute;
   top: 0;
-  transform: translateY(0); /* 确保初始状态明确 */
+  transform: translateY(0);
 }
 
 .navbar.fixed {
   position: fixed;
   top: 0;
-  transform: translateY(0); /* 显示状态 */
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05); /* 固定时增加阴影区分 */
+  transform: translateY(0);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
 .navbar.fixed.hidden {
-  transform: translateY(-100%); /* 隐藏状态：向上滑出视口 */
+  transform: translateY(-100%);
 }
 
 .logo {
@@ -426,7 +425,7 @@ h1, h2, h3, h4 {
 .nav-links {
   display: flex;
   gap: 4rem;
-  align-items: center; /* 确保子元素垂直居中，实现水平对齐 */
+  align-items: center;
 }
 
 .nav-links a {
@@ -437,9 +436,255 @@ h1, h2, h3, h4 {
   letter-spacing: 0.2em;
   transition: opacity 0.3s;
   opacity: 0.6;
-  line-height: 1; /* 统一行高，避免字体基线对齐问题 */
-  display: flex; /* 使用 flex 布局 */
-  align-items: center; /* 垂直居中内容 */
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.nav-link-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  transition: opacity 0.3s;
+  opacity: 0.6;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.nav-link-btn:hover {
+  opacity: 1;
+}
+
+/* Clerk Auth Modal */
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.auth-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+}
+
+.auth-modal-container {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+  overflow: hidden;
+  transform: translateY(10px);
+  animation: authModalIn 0.25s ease forwards;
+}
+
+@keyframes authModalIn {
+  to { transform: translateY(0); }
+}
+
+.auth-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--border-light);
+  background: rgba(255,255,255,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.auth-modal-body {
+  padding: 18px 18px 8px;
+}
+
+/* Headless Clerk Auth UI */
+.authx {
+  width: 100%;
+  padding: 10px 8px 18px;
+}
+
+.authx-header {
+  padding: 18px 10px 14px;
+}
+
+.authx-title {
+  font-size: 1.4rem;
+  margin-bottom: 6px;
+}
+
+.authx-subtitle {
+  color: rgba(0,0,0,0.6);
+  line-height: 1.5;
+}
+
+.authx-oauth {
+  width: 100%;
+  border: 1px solid rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.9);
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.authx-oauth:hover {
+  transform: translateY(-1px);
+  background: #fff;
+  border-color: rgba(0,0,0,0.25);
+}
+
+.authx-oauth:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.authx-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(0,0,0,0.55);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  padding: 16px 2px;
+}
+
+.authx-divider::before,
+.authx-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(0,0,0,0.08);
+}
+
+.authx-error {
+  margin: 0 2px 14px;
+  background: rgba(220, 38, 38, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.18);
+  color: #9b1c1c;
+  padding: 10px 12px;
+  border-radius: 12px;
+}
+
+.authx-note {
+  margin: 0 2px 14px;
+  background: rgba(0,0,0,0.03);
+  border: 1px solid rgba(0,0,0,0.08);
+  color: rgba(0,0,0,0.75);
+  padding: 10px 12px;
+  border-radius: 12px;
+  line-height: 1.5;
+}
+
+.authx-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.authx-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.7);
+}
+
+.authx-input {
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 1rem;
+  background: rgba(255,255,255,0.92);
+  outline: none;
+}
+
+.authx-input:focus {
+  border-color: rgba(0,0,0,0.28);
+}
+
+.authx-submit {
+  margin-top: 6px;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.authx-submit:hover {
+  background: #1a1a1a;
+  transform: translateY(-1px);
+}
+
+.authx-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.authx-secondary {
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.18);
+  color: rgba(0,0,0,0.85);
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.authx-footer {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  color: rgba(0,0,0,0.6);
+}
+
+.authx-link {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #000;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .nav-links a:hover {
@@ -459,7 +704,7 @@ h1, h2, h3, h4 {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  line-height: 1; /* 统一行高 */
+  line-height: 1;
   display: flex;
   align-items: center;
   margin-left: 1rem; /* 额外间距区分按钮 */
@@ -778,8 +1023,8 @@ h1, h2, h3, h4 {
   align-items: center;
   justify-content: center;
   position: relative;
-  background: #000; /* 修改背景色为黑色，视频加载前不显白 */
-  overflow: hidden; /* 确保视频不溢出 */
+  background: #000;
+  overflow: hidden;
 }
 
 .hero-video {
@@ -801,7 +1046,7 @@ h1, h2, h3, h4 {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4); /* 黑色遮罩，提升文字对比度 */
+  background: rgba(0, 0, 0, 0.4);
   z-index: 1;
 }
 
@@ -818,12 +1063,12 @@ h1, h2, h3, h4 {
     linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 100px 100px;
   pointer-events: none;
-  z-index: 2; /* 放在遮罩层之上 */
+  z-index: 2;
 }
 
 .hero-content {
   text-align: center;
-  z-index: 3; /* 放在最上层 */
+  z-index: 3;
   position: relative;
 }
 
@@ -832,7 +1077,7 @@ h1, h2, h3, h4 {
   letter-spacing: 0.8em;
   text-transform: uppercase;
   margin-bottom: 2rem;
-  color: rgba(255, 255, 255, 0.8); /* 视频背景下改为浅色 */
+  color: rgba(255, 255, 255, 0.8);
   font-weight: 300;
 }
 
@@ -841,7 +1086,7 @@ h1, h2, h3, h4 {
   line-height: 1;
   margin-bottom: 3rem;
   font-weight: 400;
-  color: #ffffff; /* 视频背景下改为白色 */
+  color: #ffffff;
 }
 
 .hero-title span {
@@ -851,14 +1096,14 @@ h1, h2, h3, h4 {
   font-weight: 300;
   letter-spacing: 0.5em;
   margin-top: 1.5rem;
-  color: rgba(255, 255, 255, 0.7); /* 视频背景下改为浅色 */
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .btn {
   display: inline-block;
   padding: 1rem 3rem;
-  border: 1px solid rgba(255,255,255,0.3); /* 改为浅色边框 */
-  color: #ffffff; /* 改为白色文字 */
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #ffffff;
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.3em;
@@ -1366,12 +1611,12 @@ footer {
 .homepage-collections {
   background: #ffffff;
   color: var(--text-primary);
-  padding: 8rem 10% 10rem 10%; /* 增加整体内边距，两侧留白更多 */
+  padding: 8rem 10% 10rem 10%;
 }
 
 .homepage-header {
   text-align: center;
-  margin-bottom: 4rem; /* 减小标题到底部内容的距离，更紧凑 */
+  margin-bottom: 4rem;
 }
 
 /* Carousel Layout */
@@ -1379,7 +1624,7 @@ footer {
   position: relative;
   width: 100%;
   margin-bottom: 10rem;
-  padding: 0 2rem; /* 给左右按钮留出空间 */
+  padding: 0 2rem;
 }
 
 .carousel-track {
@@ -1387,7 +1632,7 @@ footer {
   gap: 1.5rem;
   overflow-x: auto;
   scroll-behavior: smooth;
-  padding-bottom: 1rem; /* 隐藏滚动条 */
+  padding-bottom: 1rem;
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
@@ -1397,7 +1642,7 @@ footer {
 }
 
 .carousel-item {
-  flex: 0 0 280px; /* 固定宽度，更精致 */
+  flex: 0 0 280px;
   height: 400px;
   position: relative;
   cursor: pointer;
@@ -1479,29 +1724,28 @@ footer {
 }
 
 .carousel-btn.left {
-  left: -24px; /* 悬浮在容器左边缘 */
+  left: -24px;
 }
 
 .carousel-btn.right {
-  right: -24px; /* 悬浮在容器右边缘 */
+  right: -24px;
 }
 
-/* grid-2x2 样式移除或保留作为备份（这里直接覆盖原 grid-2x2 样式，或者直接不使用它了） */
 .grid-2x2 {
-  display: none; /* 隐藏旧布局 */
+  display: none;
 }
 
 /* Feature Section */
 .feature-section {
   display: grid;
   grid-template-columns: 1fr 1.5fr;
-  background: #ffffff; /* 改为白色 */
+  background: #ffffff;
   margin: 0 0 8rem 0;
   min-height: 600px;
 }
 
 .feature-content {
-  padding: 6rem; /* 增加内边距 */
+  padding: 6rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1518,7 +1762,7 @@ footer {
 .feature-text {
   color: var(--text-secondary);
   margin-bottom: 4rem;
-  line-height: 2; /* 增加行高，提升阅读体验 */
+  line-height: 2;
   max-width: 450px;
   font-weight: 300;
 }

@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
-import { useAuth } from '../auth/AuthContext';
+import { SignedIn, SignedOut } from '@clerk/clerk-react';
 
 const Navbar = () => {
-  // 使用 ref 来追踪状态，避免闭包陷阱，同时减少不必要的重渲染
   const [renderState, setRenderState] = useState({
     isFixed: false,
     isHidden: false
@@ -12,10 +11,9 @@ const Navbar = () => {
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const lastScrollY = useRef(0);
-  // 用 ref 记录上一次的渲染状态，方便逻辑判断
   const currentState = useRef({
     isFixed: false,
     isHidden: false
@@ -36,33 +34,22 @@ const Navbar = () => {
       let nextIsHidden = currentState.current.isHidden;
 
       if (currentScrollY > threshold) {
-        // --- 超过阈值区域 ---
         if (isDown) {
-          // 向下滚动
           if (currentState.current.isFixed) {
-            // 如果已经是 fixed 状态，则隐藏它 (slide up)
             nextIsHidden = true;
           } else {
-            // 关键点：如果之前是 absolute (非 fixed)，说明是刚从顶部滚下来
-            // 此时保持 absolute，让它自然卷走，不要变 fixed，也不要变 hidden
-            // 这样就消除了“闪现后消失”的问题
             nextIsFixed = false;
             nextIsHidden = false;
           }
         } else {
-          // 向上滚动
-          // 只要在阈值下方向上滚动，就必须是 fixed 且显示
           nextIsFixed = true;
           nextIsHidden = false;
         }
       } else {
-        // --- 顶部区域 (< 250px) ---
-        // 恢复 absolute，重置状态
         nextIsFixed = false;
         nextIsHidden = false;
       }
 
-      // 只有状态真正改变时才更新 State 触发重渲染
       if (
         nextIsFixed !== currentState.current.isFixed || 
         nextIsHidden !== currentState.current.isHidden
@@ -101,11 +88,21 @@ const Navbar = () => {
           <Link to="/">Home</Link>
           <Link to="/collections">Collections</Link>
           <Link to="/philosophy">Philosophy</Link>
-          {user ? (
+          <SignedIn>
             <Link to="/my-account">My Account</Link>
-          ) : (
-            <Link to="/login">Login</Link>
-          )}
+          </SignedIn>
+          <SignedOut>
+            <button
+              type="button"
+              className="nav-link-btn"
+              onClick={() => {
+                navigate('/sign-in', { state: { backgroundLocation: location } });
+                setIsMobileMenuOpen(false);
+              }}
+            >
+              Login
+            </button>
+          </SignedOut>
         </div>
       </nav>
     </>

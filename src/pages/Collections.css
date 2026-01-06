@@ -54,16 +54,15 @@
   flex: 0 0 250px;
   position: sticky;
   top: 120px;
-  max-height: calc(100vh - 140px); /* 视口高度减去顶部空间 */
-  overflow-y: auto; /* 允许独立滚动 */
-  overflow-x: hidden; /* 防止横向滚动 */
-  padding-right: 0.5rem; /* 为滚动条留出空间 */
-  /* 自定义滚动条样式 */
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.5rem;
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent; /* Firefox */
 }
 
-/* Webkit浏览器滚动条样式 */
+/* Webkit scrollbar */
 .col-sidebar::-webkit-scrollbar {
   width: 6px;
 }

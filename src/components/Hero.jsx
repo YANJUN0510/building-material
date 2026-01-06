@@ -3,7 +3,7 @@ import React from 'react';
 const Hero = () => {
   return (
     <section id="hero" className="hero">
-      {/* 背景视频 */}
+      {/* Background video */}
       <video 
         className="hero-video" 
         autoPlay 
@@ -14,7 +14,7 @@ const Hero = () => {
         <source src="/video/homepage-video.mp4" type="video/mp4" />
       </video>
       
-      {/* 视频遮罩层 */}
+      {/* Video overlay */}
       <div className="hero-overlay"></div>
       
       <div className="hero-content">
