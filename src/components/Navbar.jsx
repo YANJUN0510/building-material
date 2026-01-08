@@ -4,63 +4,18 @@ import { Menu, X } from 'lucide-react';
 import { SignedIn, SignedOut } from '@clerk/clerk-react';
 
 const Navbar = ({ onContactClick }) => {
-  const [renderState, setRenderState] = useState({ isFixed: false, isHidden: false });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
-  const lastScrollY = useRef(0);
-  const currentState = useRef({ isFixed: false, isHidden: false });
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const threshold = 250;
-      const isDown = currentScrollY > lastScrollY.current;
-
-      let nextIsFixed = currentState.current.isFixed;
-      let nextIsHidden = currentState.current.isHidden;
-
-      if (currentScrollY > threshold) {
-        if (isDown) {
-          if (currentState.current.isFixed) {
-            nextIsHidden = true;
-          } else {
-            nextIsFixed = false;
-            nextIsHidden = false;
-          }
-        } else {
-          nextIsFixed = true;
-          nextIsHidden = false;
-        }
-      } else {
-        nextIsFixed = false;
-        nextIsHidden = false;
-      }
-
-      if (nextIsFixed !== currentState.current.isFixed || nextIsHidden !== currentState.current.isHidden) {
-        currentState.current = { isFixed: nextIsFixed, isHidden: nextIsHidden };
-        setRenderState({ isFixed: nextIsFixed, isHidden: nextIsHidden });
-      }
-
-      lastScrollY.current = currentScrollY;
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const { isFixed, isHidden } = renderState;
-
   return (
     <nav
-      className={`navbar ${isFixed ? 'fixed' : 'absolute'} ${isHidden ? 'hidden' : ''} ${
-        isMobileMenuOpen ? 'mobile-open' : ''
-      }`}
+      className={`navbar fixed ${isMobileMenuOpen ? 'mobile-open' : ''}`}
     >
       <Link to="/" className="logo">
         <img src="/logo.png" alt="Logo" className="nav-logo-img" />
