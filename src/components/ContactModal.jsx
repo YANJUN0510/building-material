@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Mail, CheckCircle, Phone } from 'lucide-react';
-import ElevenLabsWidget from './ElevenLabsWidget';
+// import ElevenLabsWidget from './ElevenLabsWidget'; // Hidden as requested
 
 const ContactModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
@@ -105,13 +105,14 @@ const ContactModal = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
-              <div className="contact-ai-widget">
+              {/* ElevenLabsWidget hidden as requested */}
+              {/* <div className="contact-ai-widget">
                 <div className="contact-ai-title">AI Agent</div>
                 <div className="contact-ai-subtitle">Chat with our AI agent for quick help.</div>
                 <div className="contact-ai-embed">
                   <ElevenLabsWidget />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

@@ -2921,6 +2921,30 @@ footer {
   gap: 0.5rem;
 }
 
+.chatbox-message-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.chatbox-tts-btn {
+  border: none;
+  background: transparent;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.65;
+  flex: 0 0 auto;
+}
+
+.chatbox-tts-btn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.06);
+}
+
 .chatbox-loading-icon {
   animation: spin 1s linear infinite;
 }
@@ -2937,6 +2961,33 @@ footer {
   background: #fff;
   border-top: 1px solid #e2e8f0;
   align-items: center;
+}
+
+.chatbox-input-form .chatbox-mic-btn {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  flex: 0 0 44px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.chatbox-input-form .chatbox-mic-btn[aria-pressed="true"] {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.chatbox-input-form .chatbox-mic-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .chatbox-input-form .chatbox-input {
