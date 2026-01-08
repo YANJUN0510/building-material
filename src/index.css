@@ -2534,28 +2534,48 @@ footer {
 .intro-slider-wrapper {
   width: 100%;
   position: relative;
-  overflow: visible;
+  overflow: hidden; /* Hide overflow for seamless effect */
 }
 
 .intro-slider-container {
   position: relative;
   width: 100%;
-  /* Remove padding that was for full-width arrows, arrows will overlay now or be outside */
-  overflow: visible;
+  overflow: hidden; /* Hide overflow for seamless effect */
+  z-index: 1;
+}
+
+/* Seamless infinite marquee animation */
+/* Animation moves from 0% to 100%, translating from 0 to -50% */
+/* When the first set (first 4 images) scrolls out, the second set (next 4 images) takes over seamlessly */
+/* Since track width is 200%, translateX(-50%) equals exactly one set's width */
+@keyframes introMarquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .intro-slider-track {
   display: flex;
   gap: 20px;
-  overflow-x: auto;
-  /* scroll-behavior: smooth; Removed to allow JS control */
-  padding: 20px 56px; /* Space for nav buttons + shadows */
-  scroll-snap-type: x mandatory;
-  scroll-padding-inline: 56px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
+  width: 200%; /* Double width for seamless loop - accommodates duplicated content */
+  padding: 20px 0;
+  will-change: transform;
+  backface-visibility: hidden; /* Prevent flickering on some browsers */
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0); /* Force hardware acceleration */
+  -webkit-transform: translateZ(0);
+}
+
+/* Only apply animation if we have at least 2 categories for seamless effect */
+.intro-slider-track.animate-marquee {
+  animation: introMarquee 25s linear infinite;
+}
+
+.intro-slider-track.animate-marquee:hover {
+  animation-play-state: paused;
 }
 
 .intro-slider-track::-webkit-scrollbar {
@@ -2570,7 +2590,9 @@ footer {
   cursor: pointer;
   transition: transform 0.3s ease;
   background: #f0f0f0;
-  scroll-snap-align: start;
+  flex-shrink: 0; /* Prevent shrinking for seamless loop */
+  backface-visibility: hidden; /* Prevent flickering on card hover */
+  -webkit-backface-visibility: hidden;
 }
 
 .intro-slider-card:hover {
@@ -2588,6 +2610,10 @@ footer {
   height: 100%;
   object-fit: cover;
   transition: transform 0.6s ease;
+  backface-visibility: hidden; /* Prevent image flickering during animation */
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0); /* Force hardware acceleration for images */
+  -webkit-transform: translateZ(0);
 }
 
 .intro-slider-card:hover .intro-slider-img {
@@ -2635,12 +2661,13 @@ footer {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 50;
+  z-index: 100;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
   color: var(--text-primary);
   backdrop-filter: blur(6px);
   pointer-events: auto;
+  user-select: none;
 }
 
 .slider-nav-btn:hover {

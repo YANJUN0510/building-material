@@ -1,15 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowRight, Loader2 } from 'lucide-react';
 
 const CATEGORIES_API_URL = 'https://solidoro-backend-production.up.railway.app/api/building-material-categories';
 
 const IntroSlider = () => {
-  const scrollRef = useRef(null);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const animationRef = useRef(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -33,142 +30,12 @@ const IntroSlider = () => {
     fetchCategories();
   }, []);
 
-  const cancelAnimation = () => {
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-  };
-
-  const smoothScroll = (element, target, duration) => {
-    cancelAnimation();
-
-    const start = element.scrollLeft;
-    const change = target - start;
-    const startTime = performance.now();
-
-    const animateScroll = (currentTime) => {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        // Ease in-out function
-        const ease = progress < 0.5 
-            ? 2 * progress * progress 
-            : -1 + (4 - 2 * progress) * progress;
-
-        element.scrollLeft = start + change * ease;
-
-        if (progress < 1) {
-            animationRef.current = requestAnimationFrame(animateScroll);
-        } else {
-            animationRef.current = null;
-        }
-    };
-
-    animationRef.current = requestAnimationFrame(animateScroll);
-  };
-
-  useEffect(() => {
-    const scrollContainer = scrollRef.current;
-    if (!scrollContainer) return;
-
-    const onPointerDown = () => cancelAnimation();
-
-    scrollContainer.addEventListener('pointerdown', onPointerDown, { passive: true });
-    scrollContainer.addEventListener('touchstart', onPointerDown, { passive: true });
-
-    return () => {
-      scrollContainer.removeEventListener('pointerdown', onPointerDown);
-      scrollContainer.removeEventListener('touchstart', onPointerDown);
-    };
-  }, [categories.length]);
-
-  // Auto-play removed - users control via buttons only
-
-  const getCards = () => {
-    const track = scrollRef.current;
-    if (!track) return [];
-    return Array.from(track.querySelectorAll('.intro-slider-card'));
-  };
-
-  const getSnapPaddingLeft = () => {
-    const track = scrollRef.current;
-    if (!track) return 0;
-    const styles = window.getComputedStyle(track);
-    const paddingLeft = Number.parseFloat(styles.paddingLeft || '0') || 0;
-    return paddingLeft;
-  };
-
-  const getTargetScrollLeftForIndex = (index) => {
-    const track = scrollRef.current;
-    if (!track) return 0;
-
-    const cards = getCards();
-    if (cards.length === 0) return 0;
-
-    const maxScrollLeft = track.scrollWidth - track.clientWidth;
-    const paddingLeft = getSnapPaddingLeft();
-    const card = cards[Math.max(0, Math.min(index, cards.length - 1))];
-    const desired = card.offsetLeft - paddingLeft;
-
-    return Math.max(0, Math.min(maxScrollLeft, desired));
-  };
-
-  const getNearestIndex = () => {
-    const track = scrollRef.current;
-    if (!track) return 0;
-
-    const cards = getCards();
-    if (cards.length === 0) return 0;
-
-    const currentScrollLeft = track.scrollLeft;
-    let bestIndex = 0;
-    let bestDistance = Number.POSITIVE_INFINITY;
-
-    for (let i = 0; i < cards.length; i += 1) {
-      const target = getTargetScrollLeftForIndex(i);
-      const distance = Math.abs(currentScrollLeft - target);
-      if (distance < bestDistance) {
-        bestDistance = distance;
-        bestIndex = i;
-      }
-    }
-
-    return bestIndex;
-  };
-
-  const scrollToIndex = (index) => {
-    const track = scrollRef.current;
-    if (!track) return;
-    smoothScroll(track, getTargetScrollLeftForIndex(index), 600);
-  };
-
-  const getScrollStep = () => {
-    const track = scrollRef.current;
-    if (!track) return 300;
-
-    const card = track.querySelector('.intro-slider-card');
-    if (!card) return 300;
-
-    const trackStyles = window.getComputedStyle(track);
-    const gapValue = trackStyles.gap || trackStyles.columnGap || '0px';
-    const gap = Number.parseFloat(gapValue) || 0;
-    const width = card.getBoundingClientRect().width;
-
-    return width + gap;
-  };
-
-  const scroll = (direction) => {
-    if (!scrollRef.current || categories.length === 0) return;
-    
-    const step = getScrollStep();
-    if (step <= 0) return;
-
-    const currentIndex = getNearestIndex();
-    const delta = direction === 'left' ? -1 : 1;
-    const nextIndex = (currentIndex + delta + categories.length) % categories.length;
-    scrollToIndex(nextIndex);
-  };
+  // Duplicate categories for seamless loop
+  // Only duplicate if we have at least 2 categories for seamless effect
+  // If less than 2, we can't create a seamless loop, so just use original
+  const duplicatedCategories = categories.length >= 2 
+    ? [...categories, ...categories] 
+    : categories;
 
   if (isLoading) {
     return (
@@ -201,24 +68,17 @@ const IntroSlider = () => {
         {/* Right Side: Slider */}
         <div className="intro-slider-wrapper">
           <div className="intro-slider-container">
-            <button
-              className="slider-nav-btn left"
-              onClick={() => scroll('left')}
-              aria-label="Scroll left"
-              type="button"
-            >
-                <ArrowLeft size={24} />
-            </button>
-            
-            <div className="intro-slider-track" ref={scrollRef}>
-                {categories.map((cat, index) => (
-                    <motion.div 
-                        key={cat.id ?? index} 
+            <div className={`intro-slider-track ${categories.length >= 2 ? 'animate-marquee' : ''}`}>
+                {duplicatedCategories.map((cat, index) => {
+                    // Generate unique key: use category ID with duplicate indicator
+                    // For the second set, add offset to ensure uniqueness
+                    const isDuplicate = index >= categories.length;
+                    const uniqueKey = `${cat.id ?? `cat-${index % categories.length}`}-${isDuplicate ? 'dup' : 'orig'}-${index}`;
+                    
+                    return (
+                    <div 
+                        key={uniqueKey}
                         className="intro-slider-card"
-                        initial={{ opacity: 0, x: 50 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                        viewport={{ once: true }}
                     >
                         <div className="intro-card-image-wrapper">
                             <img src={cat.image} alt={cat.title} className="intro-slider-img" />
@@ -227,18 +87,10 @@ const IntroSlider = () => {
                             <h3>{cat.title}</h3>
                         </div>
                         <Link to={cat.link} className="intro-slider-link-overlay"></Link>
-                    </motion.div>
-                ))}
+                    </div>
+                    );
+                })}
             </div>
-
-            <button
-              className="slider-nav-btn right"
-              onClick={() => scroll('right')}
-              aria-label="Scroll right"
-              type="button"
-            >
-                <ArrowRight size={24} />
-            </button>
           </div>
         </div>
       </div>
