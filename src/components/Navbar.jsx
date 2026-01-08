@@ -1,25 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { SignedIn, SignedOut } from '@clerk/clerk-react';
 
-const Navbar = () => {
-  const [renderState, setRenderState] = useState({
-    isFixed: false,
-    isHidden: false
-  });
-  
+const Navbar = ({ onContactClick }) => {
+  const [renderState, setRenderState] = useState({ isFixed: false, isHidden: false });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const location = useLocation();
   const navigate = useNavigate();
-
   const lastScrollY = useRef(0);
-  const currentState = useRef({
-    isFixed: false,
-    isHidden: false
-  });
+  const currentState = useRef({ isFixed: false, isHidden: false });
 
-  // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
@@ -29,7 +21,7 @@ const Navbar = () => {
       const currentScrollY = window.scrollY;
       const threshold = 250;
       const isDown = currentScrollY > lastScrollY.current;
-      
+
       let nextIsFixed = currentState.current.isFixed;
       let nextIsHidden = currentState.current.isHidden;
 
@@ -50,10 +42,7 @@ const Navbar = () => {
         nextIsHidden = false;
       }
 
-      if (
-        nextIsFixed !== currentState.current.isFixed || 
-        nextIsHidden !== currentState.current.isHidden
-      ) {
+      if (nextIsFixed !== currentState.current.isFixed || nextIsHidden !== currentState.current.isHidden) {
         currentState.current = { isFixed: nextIsFixed, isHidden: nextIsHidden };
         setRenderState({ isFixed: nextIsFixed, isHidden: nextIsHidden });
       }
@@ -68,44 +57,60 @@ const Navbar = () => {
   const { isFixed, isHidden } = renderState;
 
   return (
-    <>
-      <nav className={`navbar ${isFixed ? 'fixed' : 'absolute'} ${isHidden ? 'hidden' : ''} ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
-        <Link to="/" className="logo">
-          <img src="/logo.png" alt="Logo" className="nav-logo-img" />
-          <span className="nav-logo-text">Building Material Warehouse</span>
-        </Link>
+    <nav
+      className={`navbar ${isFixed ? 'fixed' : 'absolute'} ${isHidden ? 'hidden' : ''} ${
+        isMobileMenuOpen ? 'mobile-open' : ''
+      }`}
+    >
+      <Link to="/" className="logo">
+        <img src="/logo.png" alt="Logo" className="nav-logo-img" />
+        <span className="nav-logo-text">Building Material Warehouse</span>
+      </Link>
 
-        {/* Mobile Menu Toggle */}
-        <button 
-          className="mobile-menu-toggle"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle Menu"
-        >
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+      <button
+        className="mobile-menu-toggle"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        aria-label="Toggle Menu"
+        type="button"
+      >
+        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
 
-        <div className={`nav-links ${isMobileMenuOpen ? 'active' : ''}`}>
-          <Link to="/">Home</Link>
-          <Link to="/collections">Collections</Link>
-          <Link to="/philosophy">Philosophy</Link>
-          <SignedIn>
-            <Link to="/my-account">My Account</Link>
-          </SignedIn>
-          <SignedOut>
-            <button
-              type="button"
-              className="nav-link-btn"
-              onClick={() => {
-                navigate('/sign-in', { state: { backgroundLocation: location } });
-                setIsMobileMenuOpen(false);
-              }}
-            >
-              Login
-            </button>
-          </SignedOut>
-        </div>
-      </nav>
-    </>
+      <div className={`nav-links ${isMobileMenuOpen ? 'active' : ''}`}>
+        <Link to="/collections">Collections</Link>
+        <Link to="/philosophy">Philosophy</Link>
+
+        <SignedIn>
+          <Link to="/my-account">My Account</Link>
+        </SignedIn>
+
+        <SignedOut>
+          <button
+            type="button"
+            className="nav-link-btn"
+            onClick={() => {
+              navigate('/sign-in', { state: { backgroundLocation: location } });
+              setIsMobileMenuOpen(false);
+            }}
+          >
+            Login
+          </button>
+        </SignedOut>
+
+        {onContactClick && (
+          <button
+            type="button"
+            className="nav-contact-btn"
+            onClick={() => {
+              onContactClick();
+              setIsMobileMenuOpen(false);
+            }}
+          >
+            Contact Us
+          </button>
+        )}
+      </div>
+    </nav>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Download, X, Loader2, Search, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Download, X, Loader2, Search, FileText, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import './Collections.css';
 
@@ -14,6 +14,8 @@ const Collections = () => {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCodeAsc, setIsCodeAsc] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [expandedCategory, setExpandedCategory] = useState("");
 
   const openContact = () => window.dispatchEvent(new Event('bmw:open-contact'));
 
@@ -88,6 +90,16 @@ const Collections = () => {
     return hierarchy[firstCat][0] || "";
   }, [hierarchy]);
 
+  const seriesToCategory = useMemo(() => {
+    const map = {};
+    Object.entries(hierarchy).forEach(([category, seriesList]) => {
+      seriesList.forEach((series) => {
+        map[series] = category;
+      });
+    });
+    return map;
+  }, [hierarchy]);
+
   const [activeSeries, setActiveSeries] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -98,6 +110,14 @@ const Collections = () => {
       setActiveSeries(defaultSeries);
     }
   }, [defaultSeries, activeSeries]);
+
+  useEffect(() => {
+    if (expandedCategory) return;
+    const categories = Object.keys(hierarchy);
+    if (categories.length === 0) return;
+    const next = (activeSeries && seriesToCategory[activeSeries]) || categories[0];
+    setExpandedCategory(next);
+  }, [activeSeries, expandedCategory, hierarchy, seriesToCategory]);
 
   // Auto-open product detail if navigated from Homepage
   useEffect(() => {
@@ -162,9 +182,11 @@ const Collections = () => {
   }, [selectedProduct]);
 
   // Handle series selection (clears search)
-  const handleSeriesClick = (series) => {
+  const handleSeriesClick = (series, category) => {
     setActiveSeries(series);
     setSearchQuery(""); // Clear search when navigating
+    if (category) setExpandedCategory(category);
+    setIsSidebarOpen(false);
   };
 
   // Get PDF URL for a series
@@ -257,10 +279,45 @@ const Collections = () => {
 
       {/* Core Module: Selector & Grid */}
       <section className="col-core-module">
+        <div className="col-mobile-toolbar">
+          <button
+            type="button"
+            className="col-mobile-filters-btn"
+            onClick={() => {
+              const categories = Object.keys(hierarchy);
+              const next =
+                (activeSeries && seriesToCategory[activeSeries]) ||
+                expandedCategory ||
+                categories[0] ||
+                "";
+              if (next) setExpandedCategory(next);
+              setIsSidebarOpen(true);
+            }}
+          >
+            Series Menu
+          </button>
+        </div>
         <div className="col-layout">
+          <button
+            type="button"
+            className={`col-sidebar-backdrop ${isSidebarOpen ? 'open' : ''}`}
+            onClick={() => setIsSidebarOpen(false)}
+            aria-label="Close series menu"
+          />
           
           {/* Left Sidebar: Categories -> Series */}
-          <div className="col-sidebar">
+          <div className={`col-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+            <div className="col-sidebar-header">
+              <h3 className="col-sidebar-title">Collections</h3>
+              <button
+                type="button"
+                className="col-sidebar-close"
+                onClick={() => setIsSidebarOpen(false)}
+                aria-label="Close series menu"
+              >
+                <X size={18} />
+              </button>
+            </div>
             
             {/* Search Input */}
             <div className="col-search-box">
@@ -279,44 +336,66 @@ const Collections = () => {
               )}
             </div>
 
-            <h3 className="col-sidebar-title">Collections</h3>
             <div className="col-nav">
               {Object.entries(hierarchy).map(([category, seriesList]) => (
-                <div key={category} className="col-nav-group">
-                  <h4 className="col-nav-category">{category}</h4>
-                  <div className="col-nav-items">
-                    {seriesList.map((series) => {
-                      const hasPDF = getSeriesPDF(series);
-                      return (
-                        <div key={series} className="col-nav-item-wrapper">
-                          <button 
-                            className={`col-nav-btn ${activeSeries === series && !searchQuery ? 'active' : ''}`}
-                            onClick={() => handleSeriesClick(series)}
-                          >
-                            <span className="col-nav-text">{series}</span>
-                            {activeSeries === series && !searchQuery && (
-                              <motion.div 
-                                layoutId={null}
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: '100%' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="col-nav-indicator" 
-                              />
-                            )}
-                          </button>
-                          {hasPDF && (
-                            <button
-                              className="col-nav-download-btn"
-                              onClick={(e) => handleDownloadPDF(series, e)}
-                              title="Download PDF Catalog"
-                            >
-                              <FileText size={14} />
-                            </button>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
+                <div key={category} className={`col-nav-group ${expandedCategory === category ? 'open' : ''}`}>
+                  <button
+                    type="button"
+                    className="col-nav-category-btn"
+                    onClick={() => setExpandedCategory((prev) => (prev === category ? "" : category))}
+                    aria-expanded={expandedCategory === category}
+                  >
+                    <span className="col-nav-category">{category}</span>
+                    <ChevronDown size={16} className="col-nav-chevron" />
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {expandedCategory === category && (
+                      <motion.div
+                        key={`${category}-items`}
+                        className="col-nav-items"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        style={{ overflow: 'hidden' }}
+                      >
+                        {seriesList.map((series) => {
+                          const hasPDF = getSeriesPDF(series);
+                          return (
+                            <div key={series} className="col-nav-item-wrapper">
+                              <button
+                                className={`col-nav-btn ${activeSeries === series && !searchQuery ? 'active' : ''}`}
+                                onClick={() => handleSeriesClick(series, category)}
+                                type="button"
+                              >
+                                <span className="col-nav-text">{series}</span>
+                                {activeSeries === series && !searchQuery && (
+                                  <motion.div
+                                    layoutId={null}
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: '100%' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="col-nav-indicator"
+                                  />
+                                )}
+                              </button>
+                              {hasPDF && (
+                                <button
+                                  className="col-nav-download-btn"
+                                  onClick={(e) => handleDownloadPDF(series, e)}
+                                  title="Download PDF Catalog"
+                                  type="button"
+                                >
+                                  <FileText size={14} />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ))}
             </div>

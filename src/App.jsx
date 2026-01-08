@@ -7,6 +7,7 @@ import PhilosophyPage from './pages/Philosophy';
 import Collections from './pages/Collections';
 import ScrollToTop from './components/ScrollToTop';
 import ContactModal from './components/ContactModal';
+import Chatbox from './components/Chatbox';
 import FloatingContactButton from './components/FloatingContactButton';
 import MyAccount from './pages/MyAccount';
 import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
@@ -26,6 +27,7 @@ function RequireClerkAuth({ children }) {
 
 function App() {
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isChatboxOpen, setIsChatboxOpen] = useState(false);
   const location = useLocation();
   const backgroundLocation = location.state?.backgroundLocation || location;
 
@@ -39,7 +41,7 @@ function App() {
     <>
       <ScrollToTop />
       <div className="dynamic-bg"></div>
-      <Navbar />
+      <Navbar onContactClick={() => setIsContactOpen(true)} />
       <Routes location={backgroundLocation}>
         <Route path="/" element={<Home />} />
         <Route path="/philosophy" element={<PhilosophyPage />} />
@@ -58,11 +60,12 @@ function App() {
         />
       </Routes>
       <AuthModal />
-      <FloatingContactButton onClick={() => setIsContactOpen(true)} />
+      <FloatingContactButton isOpen={isChatboxOpen} onClick={() => setIsChatboxOpen(prev => !prev)} />
       <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
+      <Chatbox isOpen={isChatboxOpen} onClose={() => setIsChatboxOpen(false)} />
       <Footer />
     </>
-  )
+  );
 }
 
 export default App
