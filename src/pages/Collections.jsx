@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Download, X, Loader2, Search, FileText, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Download, X, Loader2, Search, FileText, ChevronDown, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import './Collections.css';
 
@@ -294,7 +294,8 @@ const Collections = () => {
               setIsSidebarOpen(true);
             }}
           >
-            Series Menu
+            <Menu size={18} className="col-menu-icon" />
+            <span>Series Menu</span>
           </button>
         </div>
         <div className="col-layout">
