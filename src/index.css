@@ -390,6 +390,9 @@ h1, h2, h3, h4 {
   text-decoration: none;
   display: flex;
   align-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
+  gap: 0.5rem;
 }
 
 .nav-logo-img {
@@ -406,6 +409,10 @@ h1, h2, h3, h4 {
   text-transform: uppercase;
   color: var(--text-primary);
   white-space: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav-links {
@@ -1539,7 +1546,19 @@ footer {
 /* Responsive */
 @media (max-width: 1024px) {
   .nav-logo-text {
-    display: none;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    margin-left: 1rem;
+  }
+
+  .logo {
+    gap: 0.25rem;
+    flex: 0 1 auto;
+    max-width: calc(100% - 60px);
+  }
+
+  .navbar {
+    padding: 2rem 1.5rem;
   }
 
   .products-grid { grid-template-columns: 1fr; }
@@ -1605,7 +1624,42 @@ footer {
 }
 
 @media (max-width: 768px) {
+  .nav-logo-text {
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    margin-left: 0.75rem;
+  }
+
+  .logo {
+    gap: 0.25rem;
+    max-width: calc(100% - 50px);
+  }
+
+  .nav-logo-img {
+    height: 50px;
+  }
+
+  .navbar {
+    padding: 1.5rem 1rem;
+  }
+
   .sourcing-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .nav-logo-text {
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+    margin-left: 0.5rem;
+  }
+
+  .logo {
+    max-width: calc(100% - 45px);
+  }
+
+  .nav-logo-img {
+    height: 45px;
+  }
 }
 
 /* Homepage New Layout */
