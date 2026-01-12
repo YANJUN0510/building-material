@@ -2904,17 +2904,16 @@ footer {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.22);
+  background: transparent;
   z-index: 4000;
-  pointer-events: auto;
-  backdrop-filter: blur(2px);
+  pointer-events: none;
 }
 
 .chatbox-container {
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   right: calc(16px + env(safe-area-inset-right, 0px));
-  width: min(420px, calc(100vw - 32px));
+  width: min(500px, calc(100vw - 32px));
   height: min(85vh, 700px);
   max-height: min(700px, calc(100dvh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
   min-height: 450px;
@@ -3087,7 +3086,7 @@ footer {
 }
 
 .chatbox-message-content {
-  max-width: 85%;
+  max-width: 92%;
   padding: 0.75rem 1rem;
   border-radius: 12px;
   word-wrap: break-word;
