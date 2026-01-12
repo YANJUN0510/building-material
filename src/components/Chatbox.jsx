@@ -41,6 +41,7 @@ const Chatbox = ({ isOpen, onClose }) => {
   const recognitionRef = useRef(null);
   const utteranceRef = useRef(null);
   const fileInputRef = useRef(null);
+  const objectUrlsRef = useRef([]);
 
   const chatApiUrl = useMemo(() => {
     const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
@@ -63,10 +64,33 @@ const Chatbox = ({ isOpen, onClose }) => {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    return () => {
+      objectUrlsRef.current.forEach((url) => {
+        try {
+          URL.revokeObjectURL(url);
+        } catch {
+          // ignore
+        }
+      });
+      objectUrlsRef.current = [];
+    };
+  }, []);
+
   // Save messages to localStorage whenever they change
   useEffect(() => {
     try {
-      localStorage.setItem('bmw-chatbox-messages', JSON.stringify(messages));
+      const persistable = messages.map((msg) => {
+        if (!msg?.attachments || !Array.isArray(msg.attachments)) return msg;
+        return {
+          ...msg,
+          attachments: msg.attachments.map((att) => ({
+            ...att,
+            localPreviewUrl: undefined,
+          })),
+        };
+      });
+      localStorage.setItem('bmw-chatbox-messages', JSON.stringify(persistable));
     } catch (error) {
       console.warn('Failed to save chat history to localStorage:', error);
     }
@@ -205,13 +229,19 @@ const Chatbox = ({ isOpen, onClose }) => {
       // Create image source - use server URL if available, otherwise create object URL
       let imageSrc;
       try {
-        if (file.url) {
+        if (file.previewDataUrl) {
+          imageSrc = file.previewDataUrl;
+        } else if (file.localPreviewUrl) {
+          imageSrc = file.localPreviewUrl;
+        } else if (file.url) {
           imageSrc = file.url;
         } else if (file && file.constructor && file.constructor.name === 'File') {
           imageSrc = URL.createObjectURL(file);
+          objectUrlsRef.current.push(imageSrc);
         } else if (file && file.size && file.type) {
           // Fallback: if it looks like a File object, try to create URL
           imageSrc = URL.createObjectURL(file);
+          objectUrlsRef.current.push(imageSrc);
         } else {
           throw new Error('No valid image source');
         }
@@ -269,6 +299,16 @@ const Chatbox = ({ isOpen, onClose }) => {
     try {
       for (const file of files) {
         try {
+          let localPreviewUrl = null;
+          if (file.type && file.type.startsWith('image/')) {
+            try {
+              localPreviewUrl = URL.createObjectURL(file);
+              objectUrlsRef.current.push(localPreviewUrl);
+            } catch {
+              localPreviewUrl = null;
+            }
+          }
+
           const formData = new FormData();
           formData.append('file', file);
 
@@ -288,6 +328,8 @@ const Chatbox = ({ isOpen, onClose }) => {
               type: file.type,
               size: file.size,
               url: data.file?.url || data.url,
+              previewDataUrl: data.file?.previewDataUrl,
+              localPreviewUrl,
               content: data.file?.content || data.content
             });
           } else {
@@ -299,6 +341,8 @@ const Chatbox = ({ isOpen, onClose }) => {
               type: file.type,
               size: file.size,
               url: null,
+              previewDataUrl: null,
+              localPreviewUrl,
               content: `File upload failed for ${file.name}. File type: ${file.type}, Size: ${file.size} bytes.`
             });
           }
@@ -310,6 +354,8 @@ const Chatbox = ({ isOpen, onClose }) => {
             type: file.type,
             size: file.size,
             url: null,
+            previewDataUrl: null,
+            localPreviewUrl: null,
             content: `Unable to process file ${file.name}. File type: ${file.type}, Size: ${file.size} bytes.`
           });
         }
@@ -562,6 +608,15 @@ const Chatbox = ({ isOpen, onClose }) => {
 
   // Clear chat history
   const clearChatHistory = () => {
+    objectUrlsRef.current.forEach((url) => {
+      try {
+        URL.revokeObjectURL(url);
+      } catch {
+        // ignore
+      }
+    });
+    objectUrlsRef.current = [];
+
     const initialMessage = {
       role: 'assistant',
       content: "Hi! I'm the Building Material Warehouse assistant. Tell me your budget and the look you want, and I'll recommend materials from our Collections.",
