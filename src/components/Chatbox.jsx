@@ -127,22 +127,36 @@ const Chatbox = ({ isOpen, onClose }) => {
       const recognition = new SpeechRecognition();
 
       recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'en-US';
+      recognition.interimResults = true;
+      recognition.lang = navigator.language || 'en-US';
 
       recognition.onstart = () => {
         setIsListening(true);
       };
 
       recognition.onresult = (event) => {
-        const transcript = event.results[0]?.transcript;
-        if (transcript) {
-          setInputMessage(transcript);
+        try {
+          const results = Array.from(event.results || []);
+          const transcript = results
+            .map((result) => result?.[0]?.transcript || '')
+            .join('')
+            .trim();
+
+          if (transcript) {
+            setInputMessage(transcript);
+          }
+        } catch (err) {
+          console.warn('Failed to parse speech recognition result:', err);
         }
       };
 
       recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
+        // Common benign error when the user doesn't speak quickly enough.
+        if (event?.error === 'no-speech') {
+          console.warn('Speech recognition: no speech detected');
+        } else {
+          console.error('Speech recognition error:', event?.error || event);
+        }
         setIsListening(false);
       };
 
