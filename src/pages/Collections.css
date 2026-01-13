@@ -358,6 +358,7 @@
 /* Right Content */
 .col-content {
   flex: 1;
+  min-height: 600px; /* Prevent height collapse during transitions */
 }
 
 .col-category-header {

@@ -44,7 +44,9 @@ const Chatbox = ({ isOpen, onClose }) => {
   const objectUrlsRef = useRef([]);
 
   const chatApiUrl = useMemo(() => {
-    const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+    const base =
+      import.meta.env.VITE_API_BASE_URL ||
+      (import.meta.env.DEV ? 'http://localhost:3000' : window.location.origin);
     return `${base.replace(/\/+$/, '')}/api/bmw/chat`;
   }, []);
 

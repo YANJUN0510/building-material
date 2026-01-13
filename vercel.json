@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://solidoro-backend-production-6b38.up.railway.app/api/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "https://solidoro-backend-production-6b38.up.railway.app/uploads/:path*"
+    }
+  ]
+}

@@ -111,13 +111,12 @@ const Collections = () => {
     }
   }, [defaultSeries, activeSeries]);
 
+  // Expand the category that contains the active series
   useEffect(() => {
-    if (expandedCategory) return;
-    const categories = Object.keys(hierarchy);
-    if (categories.length === 0) return;
-    const next = (activeSeries && seriesToCategory[activeSeries]) || categories[0];
-    setExpandedCategory(next);
-  }, [activeSeries, expandedCategory, hierarchy, seriesToCategory]);
+    if (activeSeries && seriesToCategory[activeSeries]) {
+      setExpandedCategory(seriesToCategory[activeSeries]);
+    }
+  }, [activeSeries, seriesToCategory]);
 
   // Auto-open product detail if navigated from Homepage
   useEffect(() => {
@@ -187,6 +186,19 @@ const Collections = () => {
     setSearchQuery(""); // Clear search when navigating
     if (category) setExpandedCategory(category);
     setIsSidebarOpen(false);
+    
+    // Scroll to the top of the core module when changing series to prevent "jumping" feel
+    const coreModule = document.querySelector('.col-core-module');
+    if (coreModule) {
+      const offset = 100; // Account for fixed navbar
+      const elementPosition = coreModule.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
   };
 
   // Get PDF URL for a series
