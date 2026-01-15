@@ -4,7 +4,7 @@ import { ArrowRight, Download, X, Loader2, Search, FileText, ChevronDown, Chevro
 import { useLocation } from 'react-router-dom';
 import './Collections.css';
 
-const API_URL = 'https://solidoro-backend-production.up.railway.app/api/building-materials';
+const API_URL = 'https://bmw-backend-production.up.railway.app/api/building-materials';
 
 const Collections = () => {
   const location = useLocation();
@@ -26,7 +26,7 @@ const Collections = () => {
         // Fetch both products and series data in parallel
         const [productsRes, seriesRes] = await Promise.all([
           fetch(API_URL),
-          fetch('https://solidoro-backend-production.up.railway.app/api/building-material-series')
+          fetch('https://bmw-backend-production.up.railway.app/api/building-material-series')
         ]);
 
         if (!productsRes.ok) throw new Error('Failed to fetch products');

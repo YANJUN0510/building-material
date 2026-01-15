@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Loader2 } from 'lucide-react';
 
-const CATEGORIES_API_URL = 'https://solidoro-backend-production.up.railway.app/api/building-material-categories';
+const CATEGORIES_API_URL = 'https://bmw-backend-production.up.railway.app/api/building-material-categories';
 
 const IntroSlider = () => {
   const [categories, setCategories] = useState([]);

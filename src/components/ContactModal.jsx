@@ -46,7 +46,7 @@ const ContactModal = ({ isOpen, onClose }) => {
         formPayload.append('attachments', file);
       });
 
-      const response = await fetch('https://solidoro-backend-production.up.railway.app/api/messages', {
+      const response = await fetch('https://bmw-backend-production.up.railway.app/api/messages', {
         method: 'POST',
         body: formPayload,
       });

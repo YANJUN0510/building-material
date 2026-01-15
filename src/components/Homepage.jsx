@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { ArrowRight, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
-const CATEGORIES_API_URL = 'https://solidoro-backend-production.up.railway.app/api/building-material-categories';
-const PRODUCTS_API_URL = 'https://solidoro-backend-production.up.railway.app/api/building-materials';
+const CATEGORIES_API_URL = 'https://bmw-backend-production.up.railway.app/api/building-material-categories';
+const PRODUCTS_API_URL = 'https://bmw-backend-production.up.railway.app/api/building-materials';
 
 const Homepage = () => {
   const [activeSlide, setActiveSlide] = useState(0);
