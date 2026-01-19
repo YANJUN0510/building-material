@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import PhilosophyPage from './pages/Philosophy';
 import Collections from './pages/Collections';
+import ProductDetail from './pages/ProductDetail';
 import ScrollToTop from './components/ScrollToTop';
 import ContactModal from './components/ContactModal';
 import Chatbox from './components/Chatbox';
@@ -46,6 +47,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/philosophy" element={<PhilosophyPage />} />
         <Route path="/collections" element={<Collections />} />
+        <Route path="/collections/:code" element={<ProductDetail />} />
         <Route path="/login" element={<Navigate to="/sign-in" replace />} />
         <Route path="/sign-in/*" element={<Home />} />
         <Route path="/sign-up/*" element={<Home />} />

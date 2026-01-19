@@ -1,10 +1,18 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ExternalLink, Eye, DollarSign } from 'lucide-react';
 
 const ProductCard = ({ product, isCompact = false }) => {
+  const navigate = useNavigate();
   console.log('ProductCard received product:', product); // Debug log
   
   const handleViewDetails = () => {
+    // If it has a code, it's our internal product
+    if (product.code) {
+      navigate(`/collections/${product.code}`);
+      return;
+    }
+    
     // Ensure link opens in new tab to preserve chat state
     if (product.detailUrl) {
       const link = document.createElement('a');
