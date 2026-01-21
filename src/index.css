@@ -278,6 +278,17 @@ body {
   pointer-events: none;
 }
 
+/* ElevenLabs floating widget */
+.elevenlabs-floating-widget {
+  position: fixed;
+  left: 26px;
+  left: calc(26px + env(safe-area-inset-left, 0px));
+  bottom: 26px;
+  bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+  z-index: 2100;
+  pointer-events: auto;
+}
+
 .floating-contact-btn {
   width: 60px;
   height: 60px;
