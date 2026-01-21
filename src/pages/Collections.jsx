@@ -1,13 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Download, X, Loader2, Search, FileText, ChevronDown, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './Collections.css';
 
 const API_URL = 'https://bmw-backend-production.up.railway.app/api/building-materials';
 
 const Collections = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [seriesData, setSeriesData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -101,8 +102,6 @@ const Collections = () => {
   }, [hierarchy]);
 
   const [activeSeries, setActiveSeries] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Update activeSeries when data loads
   useEffect(() => {
@@ -118,67 +117,12 @@ const Collections = () => {
     }
   }, [activeSeries, seriesToCategory]);
 
-  // Auto-open product detail if navigated from Homepage
+  // Auto-redirect to product detail if navigated from Homepage with state
   useEffect(() => {
     if (location.state?.productCode && products.length > 0) {
-      const product = products.find(p => p.code === location.state.productCode);
-      if (product) {
-        setSelectedProduct(product);
-        setCurrentImageIndex(0); // Reset image index when opening product
-        // Set active series to the product's series
-        if (product.series) {
-          setActiveSeries(product.series);
-        }
-      }
-      // Clear the state after using it
-      window.history.replaceState({}, document.title);
+      navigate(`/collections/${location.state.productCode}`, { replace: true });
     }
-  }, [location.state, products]);
-
-  // Get all images for a product (main image + gallery)
-  const getAllImages = (product) => {
-    const images = [];
-    if (product.image) {
-      images.push(product.image);
-    }
-    if (product.gallery && Array.isArray(product.gallery)) {
-      product.gallery.forEach(img => {
-        if (img && typeof img === 'string') {
-          images.push(img);
-        }
-      });
-    }
-    return images;
-  };
-
-  // Handle image navigation
-  const handleNextImage = (e) => {
-    e.stopPropagation();
-    if (selectedProduct) {
-      const allImages = getAllImages(selectedProduct);
-      setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
-    }
-  };
-
-  const handlePrevImage = (e) => {
-    e.stopPropagation();
-    if (selectedProduct) {
-      const allImages = getAllImages(selectedProduct);
-      setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
-    }
-  };
-
-  const handleThumbnailClick = (index, e) => {
-    e.stopPropagation();
-    setCurrentImageIndex(index);
-  };
-
-  // Reset image index when product changes
-  useEffect(() => {
-    if (selectedProduct) {
-      setCurrentImageIndex(0);
-    }
-  }, [selectedProduct]);
+  }, [location.state, products, navigate]);
 
   // Handle series selection (clears search)
   const handleSeriesClick = (series, category) => {
@@ -475,7 +419,7 @@ const Collections = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                       className="col-item-card"
-                      onClick={() => setSelectedProduct(item)}
+                      onClick={() => navigate(`/collections/${item.code}`)}
                     >
                       <div className="col-item-img-box">
                         <img src={item.image} alt={item.name} />
@@ -504,164 +448,6 @@ const Collections = () => {
 
         </div>
       </section>
-
-      {/* Product Details Modal */}
-      <AnimatePresence>
-        {selectedProduct && (
-          <motion.div 
-            className="col-modal-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedProduct(null)}
-          >
-            <motion.div 
-              className="col-modal-content"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button className="col-modal-close" onClick={() => setSelectedProduct(null)}>
-                <X size={24} />
-              </button>
-              
-              <div className="col-modal-grid">
-                <div className="col-modal-image">
-                  {(() => {
-                    const allImages = getAllImages(selectedProduct);
-                    if (allImages.length === 0) {
-                      return (
-                        <div className="col-modal-main-image">
-                          <p>No image available</p>
-                        </div>
-                      );
-                    }
-                    return (
-                      <>
-                        <div className="col-modal-main-image">
-                          <img 
-                            src={allImages[currentImageIndex]} 
-                            alt={`${selectedProduct.name} - Image ${currentImageIndex + 1}`}
-                          />
-                          {allImages.length > 1 && (
-                            <>
-                              <button 
-                                className="col-image-nav-btn prev"
-                                onClick={handlePrevImage}
-                                aria-label="Previous image"
-                              >
-                                <ChevronLeft size={24} />
-                              </button>
-                              <button 
-                                className="col-image-nav-btn next"
-                                onClick={handleNextImage}
-                                aria-label="Next image"
-                              >
-                                <ChevronRight size={24} />
-                              </button>
-                              <div className="col-image-counter">
-                                {currentImageIndex + 1} / {allImages.length}
-                              </div>
-                            </>
-                          )}
-                        </div>
-                        {allImages.length > 1 && (
-                          <div className="col-modal-thumbnails">
-                            {allImages.map((img, idx) => (
-                              <div
-                                key={idx}
-                                className={`col-thumbnail ${idx === currentImageIndex ? 'active' : ''}`}
-                                onClick={(e) => handleThumbnailClick(idx, e)}
-                              >
-                                <img src={img} alt={`Thumbnail ${idx + 1}`} />
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
-                <div className="col-modal-details">
-                  <span className="col-tag">{selectedProduct.category} / {selectedProduct.series}</span>
-                  <div className="col-modal-header-group">
-                    <h2>{selectedProduct.name}</h2>
-                    <span className="col-modal-code">{selectedProduct.code}</span>
-                  </div>
-
-                  <div className="col-modal-price">
-                    <span className="col-modal-price-label">Price</span>
-                    {selectedProduct.price === null || selectedProduct.price === undefined || selectedProduct.price === '' ? (
-                      <button
-                        type="button"
-                        className="col-modal-price-value col-modal-price-link"
-                        onClick={openContact}
-                      >
-                        Contact for pricing
-                      </button>
-                    ) : (
-                      <span className="col-modal-price-value">
-                        {typeof selectedProduct.price === 'number'
-                          ? `$${selectedProduct.price.toLocaleString()}`
-                          : selectedProduct.price}
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="col-modal-desc">
-                    {selectedProduct.description
-                      ? selectedProduct.description
-                          .split(/\n/)
-                          .map((paragraph) => paragraph.trim())
-                          .filter(Boolean)
-                          .map((paragraph, idx) => (
-                            <p className="col-modal-desc-paragraph" key={idx}>
-                              {paragraph}
-                            </p>
-                          ))
-                      : null}
-                  </div>
-                  
-                  <div className="col-modal-specs">
-                    <h3>Specifications</h3>
-                    <ul>
-                      {/* Handle both object specs (from mock) and array specs (from API) */}
-                      {Array.isArray(selectedProduct.specs) ? (
-                         selectedProduct.specs.map((spec, idx) => (
-                           <li key={idx}>
-                             <span className="spec-key">{spec.label}:</span>
-                             <span className="spec-val">{spec.value}</span>
-                           </li>
-                         ))
-                      ) : (
-                        selectedProduct.specs && Object.entries(selectedProduct.specs).map(([key, value]) => (
-                          <li key={key}>
-                            <span className="spec-key">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                            <span className="spec-val">{value}</span>
-                          </li>
-                        ))
-                      )}
-                    </ul>
-                  </div>
-
-                  <div className="col-modal-actions">
-                    <button 
-                      className="col-btn-black"
-                      onClick={openContact}
-                    >
-                      Inquire
-                    </button>
-                    {/* <button className="col-btn-outline" style={{ color: '#000', borderColor: '#000' }}>
-                      Download Spec Sheet
-                    </button> */}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* CTA Section */}
       <section className="col-cta">
