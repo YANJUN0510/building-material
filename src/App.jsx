@@ -10,6 +10,7 @@ import ScrollToTop from './components/ScrollToTop';
 import ContactModal from './components/ContactModal';
 import Chatbox from './components/Chatbox';
 import FloatingContactButton from './components/FloatingContactButton';
+import ElevenLabsWidget from './components/ElevenLabsWidget';
 import MyAccount from './pages/MyAccount';
 import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
 import AuthModal from './components/AuthModal';
@@ -62,6 +63,9 @@ function App() {
         />
       </Routes>
       <AuthModal />
+      <div className="elevenlabs-floating-widget">
+        <ElevenLabsWidget />
+      </div>
       <FloatingContactButton isOpen={isChatboxOpen} onClick={() => setIsChatboxOpen(prev => !prev)} />
       <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
       <Chatbox isOpen={isChatboxOpen} onClose={() => setIsChatboxOpen(false)} />
