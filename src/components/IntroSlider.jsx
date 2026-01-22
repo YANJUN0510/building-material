@@ -19,7 +19,6 @@ const IntroSlider = () => {
           id: cat.id,
           title: cat.category,
           image: cat.image,
-          link: '/collections',
         })));
       } catch (e) {
         setCategories([]);
@@ -86,7 +85,11 @@ const IntroSlider = () => {
                         <div className="intro-slider-overlay">
                             <h3>{cat.title}</h3>
                         </div>
-                        <Link to={cat.link} className="intro-slider-link-overlay"></Link>
+                        <Link
+                          to={`/collections?category=${encodeURIComponent(cat.title)}`}
+                          state={{ category: cat.title }}
+                          className="intro-slider-link-overlay"
+                        />
                     </div>
                     );
                 })}

@@ -103,12 +103,30 @@ const Collections = () => {
 
   const [activeSeries, setActiveSeries] = useState("");
 
+  const requestedCategory = useMemo(() => {
+    const stateCategory = location.state?.category;
+    if (stateCategory) return stateCategory;
+    const params = new URLSearchParams(location.search);
+    return params.get('category') || "";
+  }, [location.search, location.state]);
+
   // Update activeSeries when data loads
   useEffect(() => {
     if (defaultSeries && !activeSeries) {
       setActiveSeries(defaultSeries);
     }
   }, [defaultSeries, activeSeries]);
+
+  // If navigated with a category, expand it and select its first series
+  useEffect(() => {
+    if (!requestedCategory || location.state?.productCode) return;
+    const seriesList = hierarchy[requestedCategory];
+    if (!seriesList || seriesList.length === 0) return;
+
+    setExpandedCategory(requestedCategory);
+    setActiveSeries(seriesList[0]);
+    setSearchQuery("");
+  }, [requestedCategory, hierarchy, location.state]);
 
   // Expand the category that contains the active series
   useEffect(() => {
