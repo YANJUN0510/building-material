@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const Hero = () => {
   return (
@@ -18,28 +19,43 @@ const Hero = () => {
       <div className="hero-overlay"></div>
       
       <div className="hero-content">
-        <p className="hero-subtitle animate-fade-up" style={{animationDelay: '0.2s', opacity: 0}}>Wholesale Building Materials · Direct Project Supply · One-Stop Procurement</p>
-        <h1 className="hero-title">
-          <span className="metallic-text animate-fade-up" style={{animationDelay: '0.4s', opacity: 0}}>Building Material Warehouse</span>
-          <div className="animate-fade-up" style={{animationDelay: '0.6s', opacity: 0}}>Building Materials</div>
-          <span className="animate-fade-up" style={{animationDelay: '0.8s', opacity: 0}}>Reliable Supply for Projects of Any Scale</span>
-        </h1>
-      </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="hero-subtitle"
+        >
+          Premier Wholesale & Project Supply
+        </motion.div>
 
-      {/* Scroll Down Indicator */}
-      <a href="#intro" className="scroll-down animate-bounce" onClick={(e) => {
-        e.preventDefault();
-        document.getElementById('intro')?.scrollIntoView({ behavior: 'smooth' });
-      }}>
-        <div className="mouse">
-          <div className="wheel"></div>
-        </div>
-        <div className="arrow-span">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </a>
+        <motion.h1 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+          className="hero-title"
+        >
+          <span className="metallic-text">Building Material</span>
+          <div>Warehouse</div>
+        </motion.h1>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
+          className="hero-tagline"
+        >
+          Reliable Solutions. Any Scale.
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1 }}
+          className="hero-cta-group"
+        >
+          <a href="/collections" className="btn">View Collections</a>
+        </motion.div>
+      </div>
     </section>
   );
 };
