@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import { X, Mail, CheckCircle, Phone } from 'lucide-react';
 // import ElevenLabsWidget from './ElevenLabsWidget'; // Hidden as requested
 
+const API_BASE =
+  (import.meta.env.VITE_API_BASE_URL ||
+    (import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin))
+    .replace(/\/+$/, '');
+const MESSAGE_API_URL = `${API_BASE}/api/messages`;
+
 const ContactModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     email: '',
@@ -46,7 +52,7 @@ const ContactModal = ({ isOpen, onClose }) => {
         formPayload.append('attachments', file);
       });
 
-      const response = await fetch('https://bmw-backend-production.up.railway.app/api/messages', {
+      const response = await fetch(MESSAGE_API_URL, {
         method: 'POST',
         body: formPayload,
       });

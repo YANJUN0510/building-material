@@ -2,8 +2,12 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { ArrowRight, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
-const CATEGORIES_API_URL = 'https://bmw-backend-production.up.railway.app/api/building-material-categories';
-const PRODUCTS_API_URL = 'https://bmw-backend-production.up.railway.app/api/building-materials';
+const API_BASE =
+  (import.meta.env.VITE_API_BASE_URL ||
+    (import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin))
+    .replace(/\/+$/, '');
+const CATEGORIES_API_URL = `${API_BASE}/api/building-material-categories`;
+const PRODUCTS_API_URL = `${API_BASE}/api/building-materials`;
 
 const Homepage = () => {
   const [activeSlide, setActiveSlide] = useState(0);

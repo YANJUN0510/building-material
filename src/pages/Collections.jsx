@@ -4,7 +4,12 @@ import { ArrowRight, Download, X, Loader2, Search, FileText, ChevronDown, Chevro
 import { useLocation, useNavigate } from 'react-router-dom';
 import './Collections.css';
 
-const API_URL = 'https://bmw-backend-production.up.railway.app/api/building-materials';
+const API_BASE =
+  (import.meta.env.VITE_API_BASE_URL ||
+    (import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin))
+    .replace(/\/+$/, '');
+const API_URL = `${API_BASE}/api/building-materials`;
+const SERIES_API_URL = `${API_BASE}/api/building-material-series`;
 
 const Collections = () => {
   const location = useLocation();
@@ -27,7 +32,7 @@ const Collections = () => {
         // Fetch both products and series data in parallel
         const [productsRes, seriesRes] = await Promise.all([
           fetch(API_URL),
-          fetch('https://bmw-backend-production.up.railway.app/api/building-material-series')
+          fetch(SERIES_API_URL)
         ]);
 
         if (!productsRes.ok) throw new Error('Failed to fetch products');
@@ -110,23 +115,38 @@ const Collections = () => {
     return params.get('category') || "";
   }, [location.search, location.state]);
 
+  const requestedSeries = useMemo(() => {
+    const stateSeries = location.state?.series;
+    if (stateSeries) return stateSeries;
+    const params = new URLSearchParams(location.search);
+    return params.get('series') || "";
+  }, [location.search, location.state]);
+
   // Update activeSeries when data loads
   useEffect(() => {
+    if (requestedSeries && hierarchy[seriesToCategory[requestedSeries]]?.includes(requestedSeries)) {
+      setActiveSeries(requestedSeries);
+      setExpandedCategory(seriesToCategory[requestedSeries] || requestedCategory || "");
+      setSearchQuery("");
+      return;
+    }
+
     if (defaultSeries && !activeSeries) {
       setActiveSeries(defaultSeries);
     }
-  }, [defaultSeries, activeSeries]);
+  }, [defaultSeries, activeSeries, requestedSeries, requestedCategory, hierarchy, seriesToCategory]);
 
   // If navigated with a category, expand it and select its first series
   useEffect(() => {
     if (!requestedCategory || location.state?.productCode) return;
+    if (requestedSeries) return;
     const seriesList = hierarchy[requestedCategory];
     if (!seriesList || seriesList.length === 0) return;
 
     setExpandedCategory(requestedCategory);
     setActiveSeries(seriesList[0]);
     setSearchQuery("");
-  }, [requestedCategory, hierarchy, location.state]);
+  }, [requestedCategory, requestedSeries, hierarchy, location.state]);
 
   // Expand the category that contains the active series
   useEffect(() => {
@@ -437,7 +457,12 @@ const Collections = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                       className="col-item-card"
-                      onClick={() => navigate(`/collections/${item.code}`)}
+                      onClick={() => navigate(`/collections/${item.code}`, {
+                        state: {
+                          category: seriesToCategory[activeSeries] || expandedCategory,
+                          series: activeSeries,
+                        },
+                      })}
                     >
                       <div className="col-item-img-box">
                         <img src={item.image} alt={item.name} />

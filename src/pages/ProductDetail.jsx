@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Download, Loader2, ArrowLeft, Send, Share2 } from 'lucide-react';
 import './ProductDetail.css';
 
-const API_URL = 'https://bmw-backend-production.up.railway.app/api/building-materials';
+const API_BASE =
+  (import.meta.env.VITE_API_BASE_URL ||
+    (import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin))
+    .replace(/\/+$/, '');
+const API_URL = `${API_BASE}/api/building-materials`;
 
 const ProductDetail = () => {
   const { code } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [product, setProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -93,7 +98,20 @@ const ProductDetail = () => {
         {/* Navigation Breadcrumb */}
         <nav className="product-breadcrumb">
           <div className="breadcrumb-main">
-            <button onClick={() => navigate(-1)} className="breadcrumb-back">
+            <button
+              onClick={() => {
+                const fallbackCategory = product?.category || '';
+                const fallbackSeries = product?.series || '';
+                const category = location.state?.category || fallbackCategory;
+                const series = location.state?.series || fallbackSeries;
+                if (category || series) {
+                  navigate('/collections', { state: { category, series } });
+                } else {
+                  navigate(-1);
+                }
+              }}
+              className="breadcrumb-back"
+            >
               <ArrowLeft size={18} />
               <span>Back</span>
             </button>
