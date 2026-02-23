@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Loader2, Mic, MicOff, Send, Square, Volume2, X, Paperclip, FileText, FileImage, File, HeadphonesIcon, Check, CheckCheck, AlertCircle, RotateCcw } from 'lucide-react';
 import ProductCard from './ProductCard';
+import { getApiBaseUrl } from '../config/apiBase';
 
 // Utility function to generate message IDs
 const generateMessageId = () => `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -44,10 +45,8 @@ const Chatbox = ({ isOpen, onClose }) => {
   const objectUrlsRef = useRef([]);
 
   const chatApiUrl = useMemo(() => {
-    const base =
-      import.meta.env.VITE_API_BASE_URL ||
-      (import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin);
-    return `${base.replace(/\/+$/, '')}/api/bmw/chat`;
+    const base = getApiBaseUrl();
+    return `${base}/api/bmw/chat`;
   }, []);
 
   const speechRecognitionSupported = useMemo(() => {

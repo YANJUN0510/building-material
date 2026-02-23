@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { X, Mail, CheckCircle, Phone } from 'lucide-react';
+import { getApiBaseUrl } from '../config/apiBase';
 // import ElevenLabsWidget from './ElevenLabsWidget'; // Hidden as requested
 
-const API_BASE =
-  (import.meta.env.VITE_API_BASE_URL ||
-    (import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin))
-    .replace(/\/+$/, '');
+const API_BASE = getApiBaseUrl();
 const MESSAGE_API_URL = `${API_BASE}/api/messages`;
 
 const ContactModal = ({ isOpen, onClose }) => {

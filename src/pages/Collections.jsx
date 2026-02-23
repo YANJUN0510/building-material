@@ -2,12 +2,10 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Download, X, Loader2, Search, FileText, ChevronDown, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getApiBaseUrl } from '../config/apiBase';
 import './Collections.css';
 
-const API_BASE =
-  (import.meta.env.VITE_API_BASE_URL ||
-    (import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin))
-    .replace(/\/+$/, '');
+const API_BASE = getApiBaseUrl();
 const API_URL = `${API_BASE}/api/building-materials`;
 const SERIES_API_URL = `${API_BASE}/api/building-material-series`;
 
